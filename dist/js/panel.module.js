@@ -1,73 +1,69 @@
 "use strict";
-var panelModule = (function(){
-  var setTempData = function(obj){
+
+var panelModule = function () {
+  var setTempData = function (obj) {
     panel.tempData.registrationNumbers = obj.registrationNumbers;
     panel.tempData.totalNumbers = obj.totalNumbers;
   };
-  var getTempData = function(){
+  var getTempData = function () {
     return panel.tempData;
   };
-  var setTempHTML = function(obj){
-    if(obj.constructor === Array){
+  var setTempHTML = function (obj) {
+    if (obj.constructor === Array) {
       panel.tempHTML = obj;
-    }else{
+    } else {
       panel.tempHTML.length = 0;
     }
   };
-  var getTempHTML = function(){
+  var getTempHTML = function () {
     return panel.tempHTML;
   };
-  var getTempFeatureData = function getTempFeatureData(){
+  var getTempFeatureData = function getTempFeatureData() {
     return panel.featureData;
   };
-  var setTempFeatureData = function setTempFeatureData(feature){
+  var setTempFeatureData = function setTempFeatureData(feature) {
     panel.featureData = feature;
   };
-  var callCreatePanel = function callCreatePanel(type){
+  var callCreatePanel = function callCreatePanel(type) {
     panel.createPanel(type);
   };
-  var setPanelTitle = function setPanelTitle(title){
+  var setPanelTitle = function setPanelTitle(title) {
     panel.title = title;
   };
-  var setParcelData = function setParcelData(parcel){
+  var setParcelData = function setParcelData(parcel) {
     panel.parcelData = parcel;
   };
-  var getParcelData = function getParcelData(){
+  var getParcelData = function getParcelData() {
     return panel.parcelData;
   };
-  var getTempDisplayType = function getTempDisplayType(){
+  var getTempDisplayType = function getTempDisplayType() {
     return panel.getDisplayType();
   };
-  var setTempDisplayType = function setTempDisplayType(type){
+  var setTempDisplayType = function setTempDisplayType(type) {
     return panel.setDisplayType(type);
   };
-  var flyToPosition = function flyToPosition(params){
+  var flyToPosition = function flyToPosition(params) {
     console.log(params);
     map.flyTo({
-        center: [params.lng, params.lat],
-        zoom: params.zoom,
-        bearing: 0,
+      center: [params.lng, params.lat],
+      zoom: params.zoom,
+      bearing: 0,
 
-        // These options control the flight curve, making it move
-        // slowly and zoom out almost completely before starting
-        // to pan.
-        speed: 2, // make the flying slow
-        curve: 1, // change the speed at which it zooms out
+      // These options control the flight curve, making it move
+      // slowly and zoom out almost completely before starting
+      // to pan.
+      speed: 2, // make the flying slow
+      curve: 1, // change the speed at which it zooms out
 
-        // This can be any easing function: it takes a number between
-        // 0 and 1 and returns another number between 0 and 1.
-        easing: function (t) {
-            return t;
-        }
+      // This can be any easing function: it takes a number between
+      // 0 and 1 and returns another number between 0 and 1.
+      easing: function (t) {
+        return t;
+      }
     });
-      console.log(params);
+    console.log(params);
   };
-  var loadEventListeners = function loadEventListeners(list) {
-    list.forEach(function(item) {
-      document.querySelector(item.id).addEventListener('click',item.call);
-    });
-  };
-  var loadPanel = function(){
+  var loadPanel = function () {
     console.log(getTempDisplayType());
     console.log(panel.displayType);
     switch (true) {
@@ -77,13 +73,12 @@ var panelModule = (function(){
         console.log(localParcelData);
         console.log(getTempHTML());
         document.querySelector('.parcel-info.rental-info').innerHTML = '';
-        document.querySelector('.info-container > .rental').innerHTML = '<article class="form-btn">START SURVEY</article>';
+        document.querySelector('.info-container > .rental').innerHTML = '<a href="#"><article class="form-btn">START SURVEY</article></a>';
         document.querySelector('.info-container > .not-rental').innerHTML = '';
-        (localParcelData.propstreetcombined !== null) ? document.querySelector('.info-container > .street-name').innerHTML = localParcelData.propstreetcombined: document.querySelector('.info-container > .street-name').innerHTML = 'Loading...';
+        localParcelData.propstreetcombined !== null ? document.querySelector('.info-container > .street-name').innerHTML = localParcelData.propstreetcombined : document.querySelector('.info-container > .street-name').innerHTML = 'Loading...';
         document.querySelector('.parcel-data.owner').innerHTML = panel.tempHTML[3];
         document.querySelector('.parcel-data.building').innerHTML = panel.tempHTML[4];
         map.setFilter("parcel-fill-hover", ["==", "parcelno", currentURLParams.parcel]);
-        loadEventListeners([{'id': '.info-container > .rental > .form-btn', 'call': survey.sendDataToPanel}])
         break;
       case panel.displayType === 'neighborhood':
         document.querySelector('.info-container > .street-name').innerHTML = panel.title;
@@ -106,27 +101,27 @@ var panelModule = (function(){
         document.querySelector('.overall-number').innerHTML = panel.tempHTML;
         document.querySelector('.info-container > .total-rentals > p').innerHTML = panel.tempData.totalNumbers;
     }
-    (document.querySelector('#info').className === 'active') ? 0 : document.querySelector('#info').className = 'active';
+    document.querySelector('#info').className === 'active' ? 0 : document.querySelector('#info').className = 'active';
   };
   var panel = {
-    'title'         : '',
-    'featureData'   : null,
-    'displayType'   : '',
-    'parcelData'    : null,
-    'tempHTML'      : [],
-    'tempData'      : {'registrationNumbers':0,'totalNumbers':0},
-    createPanel     : function(type){
+    'title': '',
+    'featureData': null,
+    'displayType': '',
+    'parcelData': null,
+    'tempHTML': [],
+    'tempData': { 'registrationNumbers': 0, 'totalNumbers': 0 },
+    createPanel: function (type) {
       this.setDisplayType(type);
       this.clearPanel();
       this.createPanelData();
     },
-    setDisplayType  : function(type){
+    setDisplayType: function (type) {
       this.displayType = type;
     },
-    getDisplayType : function(){
+    getDisplayType: function () {
       return this.displayType;
     },
-    clearPanel      : function(){
+    clearPanel: function () {
       console.log('clearing panel');
       this.tempData.registrationNumbers = 0;
       this.tempData.totalNumbers = 0;
@@ -141,7 +136,7 @@ var panelModule = (function(){
       document.querySelector('.parcel-data.building').innerHTML = '';
       document.querySelector('.parcel-info.display-section').innerHTML = '';
     },
-    switchParcelDataViews : function switchParcelDataViews(e){
+    switchParcelDataViews: function switchParcelDataViews(e) {
       //cons.log(e.getAttribute('data-view'));
       switch (e.getAttribute('data-view')) {
         case 'owner':
@@ -175,11 +170,11 @@ var panelModule = (function(){
 
       }
     },
-    createFeatureData: function(){
+    createFeatureData: function () {
       switch (true) {
         case currentURLParams.district !== '':
           console.log(currentURLParams.district.split('%20')[1]);
-          $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/NeighborhoodsApp/council_district/MapServer/1/query?where=&text=District+"+ currentURLParams.district.split('%20')[1] +"&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function( data ) {
+          $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/NeighborhoodsApp/council_district/MapServer/1/query?where=&text=District+" + currentURLParams.district.split('%20')[1] + "&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function (data) {
             console.log(data);
             setTempFeatureData(data.features[0]);
             console.log(getTempFeatureData());
@@ -188,7 +183,7 @@ var panelModule = (function(){
           break;
         case currentURLParams.neighborhood !== '':
           console.log(decodeURI(currentURLParams.neighborhood));
-          $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/NeighborhoodsApp/Neighborhoods/MapServer/1/query?where=&text="+ decodeURI(currentURLParams.neighborhood) +"&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function( data ) {
+          $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/NeighborhoodsApp/Neighborhoods/MapServer/1/query?where=&text=" + decodeURI(currentURLParams.neighborhood) + "&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function (data) {
             console.log(data);
             setTempFeatureData(data.features[0]);
             console.log(getTempFeatureData());
@@ -197,11 +192,11 @@ var panelModule = (function(){
           break;
         default:
           console.log(decodeURI(currentURLParams.parcel));
-          setTempFeatureData({'properties':{'parcelno':currentURLParams.parcel}});
+          setTempFeatureData({ 'properties': { 'parcelno': currentURLParams.parcel } });
           callCreatePanel('parcel');
       }
     },
-    createPanelData : function(){
+    createPanelData: function () {
       console.log(this.displayType);
       switch (true) {
         case this.displayType === 'parcel':
@@ -211,8 +206,7 @@ var panelModule = (function(){
           console.log('loading parcel data');
           console.log(this.displayType);
           console.log(this.featureData.properties.parcelno);
-          $.getJSON("http://apis.detroitmi.gov/assessments/parcel/"+this.featureData.properties.parcelno.replace(/\./g,'_')+"/", function( parcel ) {
-            setTempDisplayType('parcel');
+          $.getJSON("http://apis.detroitmi.gov/assessments/parcel/" + this.featureData.properties.parcelno.replace(/\./g, '_') + "/", function (parcel) {
             console.log(parcel);
             console.log(getTempDisplayType());
             tempParcelDataHTML[3] = '<div class="data-view-btn" data-view="owner" onclick="mapPanel.switchParcelDataViews(this)">OWNER INFORMATION <span>&#10095;</span></div>';
@@ -231,7 +225,7 @@ var panelModule = (function(){
           setPanelTitle(simplifiedNeighborhood.properties.name);
           var arcNeighborhoodPolygon = Terraformer.ArcGIS.convert(simplifiedNeighborhood.geometry);
           // console.log(arcPolygon);
-          $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Initial+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcNeighborhoodPolygon))+"&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function( data ) {
+          $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Initial+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry=" + encodeURI(JSON.stringify(arcNeighborhoodPolygon)) + "&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function (data) {
             console.log(getTempData());
             setTempDisplayType('neighborhood');
             var localNeighborhoodData = getTempData();
@@ -241,7 +235,7 @@ var panelModule = (function(){
             console.log(localNeighborhoodData);
             setTempData(localNeighborhoodData);
             console.log(getTempData());
-            $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Renewal+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcNeighborhoodPolygon))+"&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function( data ) {
+            $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Renewal+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry=" + encodeURI(JSON.stringify(arcNeighborhoodPolygon)) + "&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function (data) {
               console.log(getTempData());
               var localNeighborhoodData = getTempData();
               var localNeighborhoodHTML = getTempHTML();
@@ -267,7 +261,7 @@ var panelModule = (function(){
           setPanelTitle(simplifiedDistrict.properties.name);
           var arcDistrictPolygon = Terraformer.ArcGIS.convert(simplifiedDistrict.geometry);
           // console.log(arcPolygon);
-          $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Initial+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcDistrictPolygon))+"&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function( data ) {
+          $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Initial+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry=" + encodeURI(JSON.stringify(arcDistrictPolygon)) + "&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function (data) {
             console.log(getTempData());
             setTempDisplayType('district');
             var localDistrictData = getTempData();
@@ -277,7 +271,7 @@ var panelModule = (function(){
             console.log(localDistrictData);
             setTempData(localDistrictData);
             console.log(getTempData());
-            $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Renewal+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcDistrictPolygon))+"&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function( data ) {
+            $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Renewal+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry=" + encodeURI(JSON.stringify(arcDistrictPolygon)) + "&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function (data) {
               console.log(getTempData());
               var localDistrictData = getTempData();
               var localDistrictHTML = getTempHTML();
@@ -299,7 +293,7 @@ var panelModule = (function(){
           setTempHTML('clear');
           setPanelTitle('CITY OF DETROIT');
           console.log(this.tempData);
-          $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Initial+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry=&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function( data ) {
+          $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Initial+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry=&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function (data) {
             setTempDisplayType('city');
             console.log(getTempData());
             var localData = getTempData();
@@ -309,7 +303,7 @@ var panelModule = (function(){
             console.log(localData);
             setTempData(localData);
             console.log(getTempData());
-            $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Renewal+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry=&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function( data ) {
+            $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Renewal+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry=&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function (data) {
               console.log(getTempData());
               var localData = getTempData();
               var localHTML = getTempHTML();
@@ -329,4 +323,4 @@ var panelModule = (function(){
     }
   };
   return panel;
-})(window,surveyModule);
+}(window);

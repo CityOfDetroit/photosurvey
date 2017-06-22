@@ -110,13 +110,14 @@ main {
 .info-container > .rental > a, .info-container > .not-rental > a {
   text-decoration: none; }
 
-.info-container > .rental > a > .form-btn, .info-container > .not-rental > a > .form-btn {
+.info-container > .rental > .form-btn, .info-container > .not-rental > a > .form-btn {
+  cursor: pointer;
   padding: .75em;
   background-color: #EB002B;
   color: #fff;
   text-align: center; }
 
-.info-container > .rental > a > .form-btn:hover, .info-container > .not-rental > a > .form-btn:hover {
+.info-container > .rental > .form-btn:hover, .info-container > .not-rental > a > .form-btn:hover {
   -webkit-animation: animation-form-btn 1s ease forwards;
   animation: animation-form-btn 1s ease forwards; }
 
