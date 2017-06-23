@@ -7,9 +7,6 @@ var cache = require('gulp-cache');
 var del = require('del');
 var runSequence = require('run-sequence');
 var babel = require('gulp-babel');
-var babelify = require('babelify');
-var browserify = require('browserify');
-var source = require('vinyl-source-stream');
 
 gulp.task('sass', function() {
   return gulp.src('app/scss/**/*.scss') // Gets all files ending with .scss in app/scss
@@ -40,7 +37,6 @@ gulp.task('watch', ['browserSync', 'sass'], function (){
   gulp.watch('app/*.html', browserSync.reload);
   gulp.watch('app/js/**/*.js', browserSync.reload);
 });
-
 
 gulp.task('images', function(){
   return gulp.src('app/img/**/*.+(png|jpg|jpeg|gif|svg)')

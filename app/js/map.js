@@ -20,7 +20,8 @@ var currentURLParams = {
   'lat'         : 0,
   'parcel'      : '',
   'district'    : '',
-  'neighborhood': ''
+  'neighborhood': '',
+  'survey'      : ''
 };
 mapboxgl.accessToken = 'pk.eyJ1Ijoic2x1c2Fyc2tpZGRldHJvaXRtaSIsImEiOiJjaXZsNXlwcXQwYnY5MnlsYml4NTJ2Mno4In0.8wKUnlMPIlxq-eWH0d10-Q';
 var map = new mapboxgl.Map({
@@ -30,7 +31,72 @@ var map = new mapboxgl.Map({
   zoom: 11.5, // starting zoom
   keyboard : true
 });
+var markerSource = {
+  type: "geojson",
+  data: {
+    type: "Feature",
+    geometry: {
+      type: "Point",
+      coordinates: [12.695600612967427, 56.04351888068181]
+    },
+    properties: {}
+  }
+};
+var mly = new Mapillary.Viewer(
+  "survey",
+  "WGl5Z2dkVHEydGMwWlNMOHUzVHR4QToyMmQ4OTRjYzczZWFiYWVi",
+  "twelVPeQU7RXwzO5UgKx1w"
+);
+var marker;
 // ================== functions =====================
+map.on("style.load", function() {
+  map.addSource("markers", markerSource);
+  map.addLayer({
+    id: "markers",
+    type: "symbol",
+    source: "markers",
+    layout: {
+      "icon-image": "car-15"
+    }
+  });
+});
+mly.on(Mapillary.Viewer.nodechanged, function(node) {
+  updateURLParams(['','','','','','','on']);
+  document.querySelector('.survey-display > .street-name > h1').innerHTML = 'LOADING<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>';
+  var lngLat = [node.latLon.lon, node.latLon.lat];
+  var data = {
+    type: "Feature",
+    geometry: {
+      type: "Point",
+      coordinates: lngLat
+    },
+    properties: {
+      "marker-symbol": "marker"
+    }
+  };
+  map.getSource("markers").setData(data);
+  setTimeout(function() {
+    map.flyTo({
+        center: lngLat,
+        zoom: 17,
+        bearing: 0,
+
+        // These options control the flight curve, making it move
+        // slowly and zoom out almost completely before starting
+        // to pan.
+        speed: 2, // make the flying slow
+        curve: 1, // change the speed at which it zooms out
+
+        // This can be any easing function: it takes a number between
+        // 0 and 1 and returns another number between 0 and 1.
+        easing: function (t) {
+            return t;
+        }
+    });
+  }, 700);
+  survey.getParcelData(lngLat);
+});
+window.addEventListener('resize', function() { mly.resize(); map.resize(); });
 window.onload = function(){
   console.log(getQueryVariable('zoom'));
   console.log(getQueryVariable('lat'));
@@ -39,7 +105,7 @@ window.onload = function(){
   console.log(getQueryVariable('neighborhood'));
   console.log(getQueryVariable('district'));
   if(getQueryVariable('zoom')){
-    if (getQueryVariable('lat')) {
+    if (getQueryVariable('lat') && (getQueryVariable('lat') !== '0')) {
       switch (true) {
         case getQueryVariable('district') !== false:
           console.log('load district panel');
@@ -176,13 +242,16 @@ var updateURLParams = function updateURLParams(params){
       currentURLParams.lat = params[2];
       currentURLParams.district = params[4];
       break;
-    default:
+    case params.length === 6:
       currentURLParams.zoom = params[0];
       currentURLParams.lng = params[1];
       currentURLParams.lat = params[2];
       currentURLParams.parcel = params[3];
       currentURLParams.district = params[4];
       currentURLParams.neighborhood = params[5];
+      break;
+    default:
+      currentURLParams.survey = params[6];
   }
   console.log(currentURLParams);
   var newTempURL = '';
@@ -475,7 +544,7 @@ var addDataLayers = function addDataLayers(){
        new_Filter.push(data.features[i].attributes.PARCELNO);
      }
      map.addLayer({
-      "id": "parcel-fill-cofc",
+      "id": "need-survey",
       "type": "fill",
       "source": "parcels",
       'source-layer': 'parcelsgeojson',

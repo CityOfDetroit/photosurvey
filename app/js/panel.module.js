@@ -72,7 +72,7 @@ var panelModule = (function(survey){
         console.log(localParcelData);
         console.log(getTempHTML());
         document.querySelector('.parcel-info.rental-info').innerHTML = '';
-        document.querySelector('.info-container > .rental').innerHTML = '<article class="form-btn" onclick="survey.startSurvey()">START SURVEY</article>';
+        document.querySelector('.info-container > .rental').innerHTML = '';
         document.querySelector('.info-container > .not-rental').innerHTML = '';
         (localParcelData.propstreetcombined !== null) ? document.querySelector('.info-container > .street-name').innerHTML = localParcelData.propstreetcombined: document.querySelector('.info-container > .street-name').innerHTML = 'Loading...';
         document.querySelector('.parcel-data.owner').innerHTML = panel.tempHTML[3];
@@ -95,7 +95,7 @@ var panelModule = (function(survey){
         break;
       default:
         document.querySelector('.info-container > .street-name').innerHTML = panel.title;
-        document.querySelector('.info-container > .rental').innerHTML = '';
+        document.querySelector('.info-container > .rental').innerHTML = '<article class="form-btn" onclick="survey.startSurvey()">START SURVEY</article>';
         document.querySelector('.info-container > .total-rentals').innerHTML = "<h4>TOTAL PROPERTIES</h4><p>0</p>";
         document.querySelector('.overall-number').innerHTML = panel.tempHTML;
         document.querySelector('.info-container > .total-rentals > p').innerHTML = panel.tempData.totalNumbers;

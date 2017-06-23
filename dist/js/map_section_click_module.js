@@ -10,6 +10,7 @@ var mapSectionClickModule = function () {
       councilFeatures = map.queryRenderedFeatures(e.point, { layers: ['council-fill'] });
       neighborhoodsFeatures = map.queryRenderedFeatures(e.point, { layers: ['neighborhoods-fill'] });
       parcelFeatures = map.queryRenderedFeatures(e.point, { layers: ['parcel-fill'] });
+      parcelFeatures = map.queryRenderedFeatures(e.point, { layers: ['need-survey'] });
     } catch (e) {
       //console.log("ERROR: " +e);
     } finally {
@@ -19,19 +20,31 @@ var mapSectionClickModule = function () {
     }
     switch (true) {
       case councilFeatures.length !== 0:
-        mapPanel.featureData = councilFeatures[0];
-        updateURLParams([13, e.lngLat.lng, e.lngLat.lat, '', councilFeatures[0].properties.name]);
-        mapPanel.createPanel('district');
+        if (getQueryVariable('survey')) {
+          console.log('survey going no click enable');
+        } else {
+          mapPanel.featureData = councilFeatures[0];
+          updateURLParams([13, e.lngLat.lng, e.lngLat.lat, '', councilFeatures[0].properties.name]);
+          mapPanel.createPanel('district');
+        }
         break;
       case neighborhoodsFeatures.length !== 0:
-        mapPanel.featureData = neighborhoodsFeatures[0];
-        updateURLParams([16, e.lngLat.lng, e.lngLat.lat, '', '', neighborhoodsFeatures[0].properties.name]);
-        mapPanel.createPanel('neighborhood');
+        if (getQueryVariable('survey')) {
+          console.log('survey going no click enable');
+        } else {
+          mapPanel.featureData = neighborhoodsFeatures[0];
+          updateURLParams([16, e.lngLat.lng, e.lngLat.lat, '', '', neighborhoodsFeatures[0].properties.name]);
+          mapPanel.createPanel('neighborhood');
+        }
         break;
       case parcelFeatures.length !== 0:
-        mapPanel.featureData = parcelFeatures[0];
-        updateURLParams([16, e.lngLat.lng, e.lngLat.lat, parcelFeatures[0].properties.parcelno, '', '']);
-        mapPanel.createPanel('parcel');
+        if (getQueryVariable('survey')) {
+          console.log('survey going no click enable');
+        } else {
+          mapPanel.featureData = parcelFeatures[0];
+          updateURLParams([16, e.lngLat.lng, e.lngLat.lat, parcelFeatures[0].properties.parcelno, '', '']);
+          mapPanel.createPanel('parcel');
+        }
         break;
       default:
 
