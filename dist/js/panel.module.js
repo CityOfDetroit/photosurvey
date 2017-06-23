@@ -63,6 +63,11 @@ var panelModule = function () {
     });
     console.log(params);
   };
+  var loadEventListeners = function loadEventListeners(list) {
+    list.forEach(function (item) {
+      document.querySelector(item.id).addEventListener('click', item.call);
+    });
+  };
   var loadPanel = function () {
     console.log(getTempDisplayType());
     console.log(panel.displayType);
@@ -73,12 +78,13 @@ var panelModule = function () {
         console.log(localParcelData);
         console.log(getTempHTML());
         document.querySelector('.parcel-info.rental-info').innerHTML = '';
-        document.querySelector('.info-container > .rental').innerHTML = '<a href="#"><article class="form-btn">START SURVEY</article></a>';
+        document.querySelector('.info-container > .rental').innerHTML = '<article class="form-btn">START SURVEY</article>';
         document.querySelector('.info-container > .not-rental').innerHTML = '';
         localParcelData.propstreetcombined !== null ? document.querySelector('.info-container > .street-name').innerHTML = localParcelData.propstreetcombined : document.querySelector('.info-container > .street-name').innerHTML = 'Loading...';
         document.querySelector('.parcel-data.owner').innerHTML = panel.tempHTML[3];
         document.querySelector('.parcel-data.building').innerHTML = panel.tempHTML[4];
         map.setFilter("parcel-fill-hover", ["==", "parcelno", currentURLParams.parcel]);
+        loadEventListeners([{ 'id': '.info-container > .rental > .form-btn', 'call': survey.sendDataToPanel }]);
         break;
       case panel.displayType === 'neighborhood':
         document.querySelector('.info-container > .street-name').innerHTML = panel.title;
@@ -207,6 +213,7 @@ var panelModule = function () {
           console.log(this.displayType);
           console.log(this.featureData.properties.parcelno);
           $.getJSON("http://apis.detroitmi.gov/assessments/parcel/" + this.featureData.properties.parcelno.replace(/\./g, '_') + "/", function (parcel) {
+            setTempDisplayType('parcel');
             console.log(parcel);
             console.log(getTempDisplayType());
             tempParcelDataHTML[3] = '<div class="data-view-btn" data-view="owner" onclick="mapPanel.switchParcelDataViews(this)">OWNER INFORMATION <span>&#10095;</span></div>';
@@ -323,4 +330,4 @@ var panelModule = function () {
     }
   };
   return panel;
-}(window);
+}(window, surveyModule);

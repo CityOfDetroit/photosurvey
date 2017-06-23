@@ -2,6 +2,7 @@
 // ================ variables ======================
 
 var mapPanel = Object.create(panelModule);
+var suvery = Object.create(surveyModule);
 var bounds = [[-83.3437, 42.2102], // Southwest coordinates
 [-82.8754, 42.5197] // Northeast coordinates
 ];
@@ -456,17 +457,17 @@ var addDataLayers = function addDataLayers() {
     "source": "parcels", minzoom: 15.5,
     "layout": {},
     "paint": {
-      "line-color": '#a40040'
+      "line-color": '#BD0019'
     },
     'source-layer': 'parcelsgeojson',
     "filter": ["==", "parcelno", ""]
   });
 
-  $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/ArcGIS/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+City+C+of+C+-++Ord+18-03%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=parcelno&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=pjson&token=", function (data) {
-    //console.log(data);
+  $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=json", function (data) {
+    console.log(data);
     var new_Filter = ["in", 'parcelno'];
     for (var i = 0; i < data.features.length; i++) {
-      new_Filter.push(data.features[i].attributes.ParcelNo);
+      new_Filter.push(data.features[i].attributes.PARCELNO);
     }
     map.addLayer({
       "id": "parcel-fill-cofc",
@@ -475,47 +476,29 @@ var addDataLayers = function addDataLayers() {
       'source-layer': 'parcelsgeojson',
       'filter': new_Filter,
       "paint": {
-        "fill-color": "#068A24",
-        "fill-opacity": 0.5
+        "fill-color": "#DF5800",
+        "fill-opacity": 0.3
       }
     });
   });
-  $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/ArcGIS/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Initial+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=parcelno&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=pjson&token=", function (data) {
-    //console.log(data);
-    var new_Filter = ["in", 'parcelno'];
-    for (var i = 0; i < data.features.length; i++) {
-      new_Filter.push(data.features[i].attributes.ParcelNo);
-    }
-    map.addLayer({
-      "id": "parcel-fill-initial",
-      "type": "fill",
-      "source": "parcels",
-      'source-layer': 'parcelsgeojson',
-      'filter': new_Filter,
-      "paint": {
-        "fill-color": "#114BC7",
-        "fill-opacity": 0.5
-      }
-    });
-  });
-  $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/ArcGIS/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Renewal+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=parcelno&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=pjson&token=", function (data) {
-    //console.log(data);
-    var new_Filter = ["in", 'parcelno'];
-    for (var i = 0; i < data.features.length; i++) {
-      new_Filter.push(data.features[i].attributes.ParcelNo);
-    }
-    map.addLayer({
-      "id": "parcel-fill-renewal",
-      "type": "fill",
-      "source": "parcels",
-      'source-layer': 'parcelsgeojson',
-      'filter': new_Filter,
-      "paint": {
-        "fill-color": "#114BC7",
-        "fill-opacity": 0.5
-      }
-    });
-  });
+  //  $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/ArcGIS/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Initial+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=parcelno&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=pjson&token=", function( data ) {
+  //    //console.log(data);
+  //    var new_Filter = ["in",'parcelno'];
+  //    for (var i = 0; i < data.features.length; i++) {
+  //      new_Filter.push(data.features[i].attributes.ParcelNo);
+  //    }
+  //    map.addLayer({
+  //     "id": "parcel-fill-initial",
+  //     "type": "fill",
+  //     "source": "parcels",
+  //     'source-layer': 'parcelsgeojson',
+  //     'filter': new_Filter,
+  //     "paint": {
+  //       "fill-color":"#114BC7",
+  //       "fill-opacity":0.5
+  //     }
+  //   });
+  //  });
 };
 map.on('style.load', function () {
   addDataLayers();

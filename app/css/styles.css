@@ -25,6 +25,32 @@ main {
   padding: 0 0 2em 0;
   transition: all 0.2s ease-in-out; }
 
+#survey {
+  width: 50vw;
+  height: 100vh;
+  background-color: #fff;
+  position: absolute;
+  top: 0;
+  left: -50vw;
+  z-index: 5;
+  padding: 0 0 2em 0;
+  transition: all 0.2s ease-in-out; }
+
+#survey.active {
+  width: 50vw;
+  height: 100vh;
+  background-color: #fff;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  padding: 0 0 2em 0;
+  transition: all 0.2s ease-in-out;
+  -webkit-box-shadow: 2px 0px 5px -1px rgba(0, 0, 0, 0.6);
+  -moz-box-shadow: 2px 0px 5px -1px rgba(0, 0, 0, 0.6);
+  box-shadow: 2px 0px 5px -1px rgba(0, 0, 0, 0.6);
+  overflow-y: auto; }
+
 #geocoder, .info-container > .parcel-data {
   padding: 0 2em; }
 
@@ -104,6 +130,9 @@ main {
   -webkit-animation: animation-close-btn 1s ease forwards;
   animation: animation-close-btn 1s ease forwards; }
 
+#base-64 {
+  width: 100%; }
+
 .info-container > .rental, .info-container > .not-rental {
   padding: 0 2em; }
 
@@ -111,11 +140,11 @@ main {
   text-decoration: none; }
 
 .info-container > .rental > .form-btn, .info-container > .not-rental > a > .form-btn {
-  cursor: pointer;
   padding: .75em;
   background-color: #EB002B;
   color: #fff;
-  text-align: center; }
+  text-align: center;
+  cursor: pointer; }
 
 .info-container > .rental > .form-btn:hover, .info-container > .not-rental > a > .form-btn:hover {
   -webkit-animation: animation-form-btn 1s ease forwards;

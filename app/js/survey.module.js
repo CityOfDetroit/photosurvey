@@ -1,6 +1,7 @@
 "use strict";
 var surveyModule = (function(){
   var survey = {
+    imageList: null,
     questionsList: [
       'Is the blighted parcel a lot or structure?',
       'Structure with Blight',
@@ -145,8 +146,32 @@ var surveyModule = (function(){
         }
       ],
     ],
-    sendDataToPanel: function(){
+    startSurvey: function(){
       console.log('dummy data');
+      console.log(currentURLParams.parcel);
+      this.getSurveyImageIDs();
+    },
+    updateImageList : function updateImageList(arr){
+      this.imageList = arr;
+      console.log(this.imageList);
+    },
+    getSurveyImageIDs: function(){
+      $.getJSON("http://apis.detroitmi.gov/photo_survey/02006213-7/", function( data ) {
+        console.log(data);
+        survey.updateImageList(data.images);
+        survey.getBase64Data();
+        (document.querySelector('#info').className === 'active') ? document.querySelector('#info').className = '' : 0;
+        (document.querySelector('#survey').className === 'active') ? 0 : document.querySelector('#survey').className = 'active';
+      });
+    },
+    getBase64Data: function(){
+      let tempImageList = this.imageList;
+      $.getJSON("http://apis.detroitmi.gov/photo_survey/image/"+tempImageList[0]+"/", function( data ) {
+        survey.loadImage(data);
+      });
+    },
+    loadImage: function(data){
+      document.getElementById('base-64').src = "data:image/jpeg;base64," + data;
     }
   };
   return survey;
