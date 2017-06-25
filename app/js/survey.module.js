@@ -228,8 +228,40 @@ var surveyModule = (function(){
         }
       ]
     ],
+    setSurveyIndex: function(value) {
+      this.surveyIndex = value;
+    },
+    getSurveyIndex: function(){
+      return this.surveyIndex;
+    },
+    getAnswerSet: function(index){
+      return this.answerList[index];
+    },
+    getQuestion: function(index){
+      return this.questionsList[index];
+    },
+    getPostData: function(){
+      return this.surveyPostData;
+    },
+    setPostData: function(index, value){
+      if(Array.isArray(value)){
+        console.log(value);
+        let tempAnswer = '';
+        let valueSize = value.length;
+        value.forEach(function(item, index){
+          tempAnswer += item.value;
+          console.log(index);
+
+          ((index + 1) < valueSize) ? tempAnswer += ',' : 0;
+
+        });
+        console.log(tempAnswer);
+        this.surveyPostData.answers[index].answer = tempAnswer;
+      }else{
+        this.surveyPostData.answers[index].answer = value;
+      }
+    },
     startSurvey: function(){
-      console.log('dummy data');
       console.log(currentURLParams.parcel);
       this.displaySurveyPanels();
     },
@@ -241,7 +273,6 @@ var surveyModule = (function(){
       (document.querySelector('#map').className === 'mapboxgl-map') ? 0 : document.querySelector('#map').className = 'mapboxgl-map survey-on';
       (document.querySelector('#legend').className === 'survey-on') ? 0 : document.querySelector('#legend').className = 'survey-on';
       (document.querySelector('.mapboxgl-control-container').className === 'mapboxgl-control-container') ? document.querySelector('.mapboxgl-control-container').className = 'mapboxgl-control-container survey-on' : 0;
-      console.log('done changing classes');
       setTimeout(function() {
         mly.resize();
         map.resize();
@@ -261,35 +292,146 @@ var surveyModule = (function(){
           $.getJSON('http://gis.detroitmi.gov/arcgis/rest/services/DoIT/CompositeGeocoder/GeocodeServer/findAddressCandidates?Street=&City=&ZIP=&SingleLine='+ addr +'&category=&outFields=User_fld&maxLocations=&outSR=&searchExtent=&location=&distance=&magicKey=&f=pjson' , function( parcel ) {
             console.log(parcel.candidates[0].attributes.User_fld);
             map.setFilter("parcel-fill-hover", ["==", "parcelno", parcel.candidates[0].attributes.User_fld]);
-            survey.surveyPostData.answers[0].answer = parcel.candidates[0].attributes.User_fld;
-            console.log(survey.loadQuestion());
-            document.querySelector('.question-container').innerHTML = survey.loadQuestion();
+            survey.setPostData(0,parcel.candidates[0].attributes.User_fld);
+            survey.loadHTML();
           });
         } catch (e) {
           console.log(e);
         }
       });
     },
-    loadQuestion: function(){
-      let tempHTML = '';
-      tempHTML += "<h5>" + this.questionsList[this.surveyIndex] + "</h5><article class='answers'>";
-      console.log(tempHTML);
-      console.log(this.answerList[this.surveyIndex]);
-      for (var i = 0; i < this.answerList[this.surveyIndex].length; i++) {
-        switch (this.surveyIndex) {
-          case 3:
-            tempHTML += '<label class="checkbox">'+this.answerList[this.surveyIndex][i].text+'<input type="checkbox" value="'+ this.answerList[this.surveyIndex][i].value +'" data-next-key="'+ this.answerList[this.surveyIndex][i].nextQuestionKey +'"/></label>';
+    submitAnswer: function(){
+      let allAnswers = document.querySelectorAll('.answer-options');
+      let itemsChecked = 0;
+      let selectedAnswers = [];
+      allAnswers.forEach(function(item) {
+        if(item.checked === true){
+          console.log(item);
+          selectedAnswers.push(item);
+          itemsChecked++;
+        }
+      });
+      if(itemsChecked > 0){
+        console.log('answers was selected');
+        console.log(survey.getSurveyIndex());
+        switch (survey.getSurveyIndex()) {
+          case 0:
+            console.log(selectedAnswers);
+            console.log(typeof(selectedAnswers[0].getAttribute('data-next-key')));
+            survey.setPostData(1, selectedAnswers[0].value);
+            if(selectedAnswers[0].getAttribute('data-next-key') === 'null'){
+              survey.submitSurvey();
+            }else{
+              survey.setSurveyIndex(parseInt(selectedAnswers[0].getAttribute('data-next-key')));
+              console.log(survey.getSurveyIndex());
+              survey.loadHTML();
+            }
             break;
-          case 4:
-            tempHTML += '<label class="checkbox">'+this.answerList[this.surveyIndex][i].text+'<input type="checkbox" value="'+ this.answerList[this.surveyIndex][i].value +'" data-next-key="'+ this.answerList[this.surveyIndex][i].nextQuestionKey +'"/></label>';
+          case 1:
+            console.log(selectedAnswers);
+            survey.setPostData(2, selectedAnswers[0].value);
+            survey.setSurveyIndex(parseInt(selectedAnswers[0].getAttribute('data-next-key')));
+            console.log(survey.getSurveyIndex());
+            survey.loadHTML();
+            break;
+          case 2:
+            console.log(selectedAnswers);
+            survey.setPostData(3, selectedAnswers[0].value);
+            survey.setSurveyIndex(parseInt(selectedAnswers[0].getAttribute('data-next-key')));
+            console.log(survey.getSurveyIndex());
+            survey.loadHTML();
+            break;
+          case 3:
+            console.log(selectedAnswers);
+            survey.setPostData(4, selectedAnswers);
+            if(selectedAnswers[0].getAttribute('data-next-key') === 'null'){
+              survey.submitSurvey();
+            }else{
+              survey.setSurveyIndex(parseInt(selectedAnswers[0].getAttribute('data-next-key')));
+              console.log(survey.getSurveyIndex());
+              survey.loadHTML();
+            }
             break;
           default:
-            tempHTML += '<label class="radio">'+ this.answerList[this.surveyIndex][i].text +'<input type="radio" name="radio" value="'+ this.answerList[this.surveyIndex][i].value +'" data-next-key="'+ this.answerList[this.surveyIndex][i].nextQuestionKey +'"/></label>';
+            console.log(selectedAnswers);
+            survey.setPostData(5, selectedAnswers);
+            if(selectedAnswers[0].getAttribute('data-next-key') === 'null'){
+              survey.submitSurvey();
+            }else{
+              survey.setSurveyIndex(parseInt(selectedAnswers[0].getAttribute('data-next-key')));
+              console.log(survey.getSurveyIndex());
+              survey.loadHTML();
+            }
+        }
+      }else{
+        console.log('answer was not selected');
+      }
+    },
+    loadHTML: function(){
+      document.querySelector('.question-container').innerHTML = survey.loadQuestion();
+      document.querySelector('.survey-buttons').innerHTML = '<button onclick="survey.submitAnswer()">NEXT</button>';
+    },
+    submitSurvey: function(){
+      console.log('submitting survey');
+      console.log(survey.getPostData());
+      survey.sendDataTOServer('http://apis.detroitmi.gov/photo_survey/', survey.getPostData(), function(response){
+          console.log(response);
+          // document.querySelector('.phone-valid-alert').className = 'phone-valid-alert active';
+      });
+    },
+    sendDataTOServer: function (url, data, success) {
+      var params = typeof data == 'string' ? data : Object.keys(data).map(
+              function(k){ return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]); }
+          ).join('&');
+      console.log(params);
+      var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+      xhr.open('POST', url);
+      xhr.onload  = function() {
+        if (xhr.readyState>3 && xhr.status==200) {
+          console.log('xhr success');
+          success(xhr.responseText);
+        }else{
+          console.log('xhr error');
+          // document.querySelector('.invalid-phone-error-message').innerHTML = 'There was an error with your request. Please try again.';
+          // document.querySelector('.phone-invalid-alert').className = 'phone-invalid-alert active';
+        }
+      };
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      xhr.addEventListener("error", function(e){
+        console.log(e);
+      });
+      xhr.send(params);
+      return xhr;
+    },
+    loadQuestion: function(){
+      console.log(survey.getSurveyIndex());
+      console.log(survey.surveyIndex);
+      let tempHTML = '';
+      let tempIndex = this.getSurveyIndex();
+      let tempQuestion = this.getQuestion(tempIndex);
+      let tempAnswers = this.getAnswerSet(tempIndex);
+      console.log(tempIndex);
+      console.log(tempQuestion);
+      console.log(tempAnswers);
+      tempHTML += "<h5>" + this.questionsList[tempIndex] + "</h5><article class='answers'>";
+      console.log(tempHTML);
+      console.log(this.answerList[tempIndex]);
+      for (var i = 0; i < this.answerList[tempIndex].length; i++) {
+        switch (tempIndex) {
+          case 3:
+            tempHTML += '<label class="checkbox"><input class="answer-options" type="checkbox" value="'+ this.answerList[tempIndex][i].value +'" data-next-key="'+ this.answerList[tempIndex][i].nextQuestionKey +'"/>'+this.answerList[tempIndex][i].text+'</label>';
+            break;
+          case 4:
+            tempHTML += '<label class="checkbox"><input class="answer-options" type="checkbox" value="'+ this.answerList[tempIndex][i].value +'" data-next-key="'+ this.answerList[tempIndex][i].nextQuestionKey +'"/>'+this.answerList[tempIndex][i].text+'</label>';
+            break;
+          default:
+            tempHTML += '<label class="radio"><input class="answer-options" type="radio" name="radio" value="'+ this.answerList[tempIndex][i].value +'" data-next-key="'+ this.answerList[tempIndex][i].nextQuestionKey +'"/>'+ this.answerList[tempIndex][i].text +'</label>';
         }
       }
       tempHTML += "</article>";
+      console.log(tempHTML);
       return tempHTML;
-      this.surveyIndex ++;
     },
     updateImageList : function updateImageList(arr){
       this.imageList = arr;

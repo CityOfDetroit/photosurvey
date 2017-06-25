@@ -216,8 +216,8 @@ var getQueryVariable = function getQueryVariable(variable){
    return(false);
 };
 var updateURLParams = function updateURLParams(params){
-  console.log(params);
-  console.log(params.length);
+  // console.log(params);
+  // console.log(params.length);
   switch (true) {
     case params.length === 1:
       currentURLParams.zoom = params[0];
@@ -253,12 +253,12 @@ var updateURLParams = function updateURLParams(params){
     default:
       currentURLParams.survey = params[6];
   }
-  console.log(currentURLParams);
+  // console.log(currentURLParams);
   var newTempURL = '';
   for (var property in currentURLParams) {
       if (currentURLParams.hasOwnProperty(property)) {
-          console.log(property);
-          console.log(currentURLParams[property]);
+          // console.log(property);
+          // console.log(currentURLParams[property]);
           switch (true) {
             case property !== 0:
               newTempURL += property + '=' + currentURLParams[property] + '&'
@@ -268,7 +268,7 @@ var updateURLParams = function updateURLParams(params){
           }
       }
   }
-  console.log(newTempURL);
+  // console.log(newTempURL);
   if (history.pushState) {
       var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?' + newTempURL;
       window.history.pushState({path:newurl},'',newurl);
@@ -632,7 +632,7 @@ map.on('load', function(window) {
   });
 });
 map.on('zoom', function() {
-  console.log(map.getZoom());
+  // console.log(map.getZoom());
   updateURLParams([map.getZoom()]);
 });
 document.getElementById('close-emergency-modal-btn').addEventListener('click',closeInfo);

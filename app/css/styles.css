@@ -234,6 +234,23 @@ main {
 .dot-3 {
   animation: dot-animation-3 2s infinite ease forwards; }
 
+.question-container, .survey-buttons {
+  padding: 0 1em; }
+
+.question-container > h5 {
+  font-size: 1.25em;
+  margin: 0; }
+
+.question-container > .answers > .radio {
+  margin-right: 1em; }
+
+.question-container > .answers > .checkbox {
+  width: 100%;
+  display: block; }
+
+.survey-buttons > button {
+  padding: .5em 1em; }
+
 ::-webkit-input-placeholder {
   /* Chrome */
   color: #000; }
