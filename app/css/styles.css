@@ -149,9 +149,63 @@ main {
   font-size: 2.5em;
   margin: 0; }
 
-#close-emergency-modal-btn:hover {
+#close-emergency-modal-btn:hover, #close-survey-btn:hover {
   -webkit-animation: animation-close-btn 1s ease forwards;
   animation: animation-close-btn 1s ease forwards; }
+
+#survey > .domRenderer {
+  display: none !important; }
+
+#survey.active > .domRenderer {
+  display: block !important; }
+
+#close-survey-btn {
+  cursor: pointer;
+  position: absolute;
+  right: 1.5em;
+  top: .5em;
+  width: 2em;
+  height: 2em; }
+
+#close-survey-btn > img {
+  width: 100%; }
+
+#end-survey-popup {
+  display: none; }
+
+#end-survey-popup.active {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 10;
+  display: flex; }
+
+#end-survey-popup > .end-survey-content {
+  background-color: #fff;
+  width: 25em;
+  height: 10em;
+  margin: auto;
+  padding: 1em; }
+
+.end-survey-content > h4 {
+  text-align: center; }
+
+.end-survey-content > .end-survey-buttons {
+  display: flex;
+  justify-content: center; }
+
+.end-survey-content > .end-survey-buttons > span {
+  padding: .5em 1em;
+  color: #fff;
+  margin-right: 1em;
+  cursor: pointer; }
+
+#end-survey-btn {
+  background-color: #068a24; }
+
+#stay-survey-btn {
+  background-color: #bd0019; }
 
 .info-container > .rental, .info-container > .not-rental {
   padding: 0 2em; }

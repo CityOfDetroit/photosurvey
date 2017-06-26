@@ -1,11 +1,17 @@
 "use strict";
 var surveyModule = (function(){
   var survey = {
+    currentLatLng: {
+      lat: null,
+      lng: null
+    },
+    pastSurveys : false,
     surveyIndex : 0,
     imageList: null,
-    surveyStatus : false,
+    surveyCurrentAddress: null,
+    surveyPossibleAddress: null,
     surveyPostData : {
-      'sureve_id'   : 'default',
+      'survey_id'   : 'default',
       'user_id'     : 'xyz',
       'answers'     : [
         {
@@ -228,6 +234,31 @@ var surveyModule = (function(){
         }
       ]
     ],
+    setSurveyPossibleeAddress: function(value){
+      this.surveyPossibleAddress = value;
+    },
+    getSurveyPossibleeAddress: function(){
+      return this.surveyPossibleAddress;
+    },
+    setSurveyCurrentAddress: function(value){
+      this.surveyCurrentAddress = value;
+    },
+    getSurveyCurrentAddress: function(){
+      return this.surveyCurrentAddress;
+    },
+    setCurrentLatLng: function(value){
+      this.currentLatLng.lat = value.lat;
+      this.currentLatLng.lng = value.lng;
+    },
+    getCurrentLatLng: function(){
+      return this.currentLatLng;
+    },
+    setPastSurveys: function(value){
+      this.pastSurveys = value;
+    },
+    getPastSurveys: function(){
+      return this.pastSurveys;
+    },
     setSurveyIndex: function(value) {
       this.surveyIndex = value;
     },
@@ -242,6 +273,12 @@ var surveyModule = (function(){
     },
     getPostData: function(){
       return this.surveyPostData;
+    },
+    clearSurvey: function(){
+      this.surveyIndex = 0;
+      this.surveyPostData.answers.forEach(function(item){
+        item.answer = null;
+      });
     },
     setPostData: function(index, value){
       if(Array.isArray(value)){
@@ -263,14 +300,32 @@ var surveyModule = (function(){
     },
     startSurvey: function(){
       console.log(currentURLParams.parcel);
+      console.log(getQueryVariable('parcel'));
+      console.log(getQueryVariable('lat'));
+      console.log(getQueryVariable('lng'));
+      if(getQueryVariable('parcel')){
+        mly.moveCloseTo(getQueryVariable('lat'), getQueryVariable('lng'))
+          .then(
+              function(node) { console.log(node.key); },
+              function(error) { console.error(error); });
+      }else{
+        mly.moveToKey('twelVPeQU7RXwzO5UgKx1w')
+          .then(
+              function(node) { console.log(node.key); },
+              function(error) { console.error(error); });
+      }
       this.displaySurveyPanels();
+    },
+    startNewSurvey: function(){
+      survey.setPastSurveys(false);
+      survey.loadHTML();
     },
     displaySurveyPanels: function(){
       (document.querySelector('#info').className === 'active') ? document.querySelector('#info').className = '' : 0;
       (document.querySelector('#survey').className === 'active') ? 0 : document.querySelector('#survey').className = 'active';
       (document.querySelector('#map-survey').className === 'survey-on') ? 0 : document.querySelector('#map-survey').className = 'survey-on';
       (document.querySelector('#map-survey > .survey-display').className === 'survey-display') ? document.querySelector('#map-survey > .survey-display').className = 'survey-display survey-on': 0;
-      (document.querySelector('#map').className === 'mapboxgl-map') ? 0 : document.querySelector('#map').className = 'mapboxgl-map survey-on';
+      (document.querySelector('#map').className === 'mapboxgl-map') ? document.querySelector('#map').className = 'mapboxgl-map survey-on' : 0;
       (document.querySelector('#legend').className === 'survey-on') ? 0 : document.querySelector('#legend').className = 'survey-on';
       (document.querySelector('.mapboxgl-control-container').className === 'mapboxgl-control-container') ? document.querySelector('.mapboxgl-control-container').className = 'mapboxgl-control-container survey-on' : 0;
       setTimeout(function() {
@@ -281,8 +336,9 @@ var surveyModule = (function(){
     getParcelData: function(lngLat){
       $.getJSON('http://gis.detroitmi.gov/arcgis/rest/services/DoIT/CompositeGeocoder/GeocodeServer/reverseGeocode?location=%7B%22x%22%3A+'+lngLat[0]+'%2C%22y%22%3A+'+lngLat[1]+'%2C%22spatialReference%22%3A+%7B%22wkid%22%3A+4326%7D%7D&distance=&langCode=&outSR=4326&returnIntersection=false&f=pjson' , function( data ) {
         console.log(data);
+        survey.setSurveyPossibleeAddress(data.address.Street);
+        console.log(survey.getSurveyPossibleeAddress());
         try {
-          document.querySelector('.survey-display > .street-name > h1').innerHTML = data.address.Street;
           var tempArr = data.address.Street.split(' ');
           var addr = '';
           for (var i = 0; i < tempArr.length; i++) {
@@ -291,9 +347,42 @@ var surveyModule = (function(){
           }
           $.getJSON('http://gis.detroitmi.gov/arcgis/rest/services/DoIT/CompositeGeocoder/GeocodeServer/findAddressCandidates?Street=&City=&ZIP=&SingleLine='+ addr +'&category=&outFields=User_fld&maxLocations=&outSR=&searchExtent=&location=&distance=&magicKey=&f=pjson' , function( parcel ) {
             console.log(parcel.candidates[0].attributes.User_fld);
+            console.log(getQueryVariable('survey'));
+            let tempParcel = survey.getPostData().answers[0].answer;
+            console.log(tempParcel);
+            survey.setSurveyCurrentAddress(survey.getSurveyPossibleeAddress());
+            document.querySelector('.survey-display > .street-name > h1').innerHTML = survey.getSurveyCurrentAddress();
             map.setFilter("parcel-fill-hover", ["==", "parcelno", parcel.candidates[0].attributes.User_fld]);
-            survey.setPostData(0,parcel.candidates[0].attributes.User_fld);
-            survey.loadHTML();
+            let cleanParcelID = parcel.candidates[0].attributes.User_fld;
+            console.log(cleanParcelID);
+            cleanParcelID = cleanParcelID.replace(/\./g,'_');
+            console.log(cleanParcelID);
+            switch (true) {
+              case tempParcel === null:
+                survey.setPostData(0,parcel.candidates[0].attributes.User_fld);
+                $.getJSON('http://apis.detroitmi.gov/photo_survey/count/'+cleanParcelID+'/' , function( surveys ) {
+                  console.log('new parcel');
+                  (surveys.count > 0) ? survey.setPastSurveys(true) : survey.setPastSurveys(false);
+                  survey.loadHTML();
+                });
+                break;
+              case getQueryVariable('survey') === 'on' && tempParcel !== parcel.candidates[0].attributes.User_fld:
+                console.log('clear survey');
+                survey.clearSurvey();
+                survey.setPostData(0,parcel.candidates[0].attributes.User_fld);
+                $.getJSON('http://apis.detroitmi.gov/photo_survey/count/'+cleanParcelID+'/' , function( surveys ) {
+                  console.log(surveys.count);
+                  (surveys.count > 0) ? survey.setPastSurveys(true) : survey.setPastSurveys(false);
+                  survey.loadHTML();
+                });
+                break;
+              default:
+                console.log('same parcel');
+                $.getJSON('http://apis.detroitmi.gov/photo_survey/count/'+cleanParcelID+'/' , function( surveys ) {
+                  console.log(surveys.count);
+                  (surveys.count > 0) ? survey.setPastSurveys(true) : survey.setPastSurveys(false);
+                });
+            }
           });
         } catch (e) {
           console.log(e);
@@ -368,18 +457,33 @@ var surveyModule = (function(){
       }
     },
     loadHTML: function(){
-      document.querySelector('.question-container').innerHTML = survey.loadQuestion();
-      document.querySelector('.survey-buttons').innerHTML = '<button onclick="survey.submitAnswer()">NEXT</button>';
+      if(survey.getPastSurveys()){
+        document.querySelector('.question-container').innerHTML = '<h5>Parcel was already surveyed</h5>';
+        document.querySelector('.survey-buttons').innerHTML = '<button onclick="survey.startNewSurvey()">Start New Survey</button>';
+      }else{
+        document.querySelector('.question-container').innerHTML = survey.loadQuestion();
+        document.querySelector('.survey-buttons').innerHTML = '<button onclick="survey.submitAnswer()">NEXT</button>';
+      }
     },
     submitSurvey: function(){
       console.log('submitting survey');
-      console.log(survey.getPostData());
-      survey.sendDataTOServer('http://apis.detroitmi.gov/photo_survey/', survey.getPostData(), function(response){
+      let tempData = survey.getPostData();
+      console.log(tempData);
+      let tempParcel = tempData.answers[0].answer;
+      let cleanAnswer = [];
+      tempData.answers.forEach(function(item){
+        (item.answer !== null) ? cleanAnswer.push(item) : 0;
+      });
+      tempData.answers = cleanAnswer;
+      console.log(tempData);
+      tempParcel = tempParcel.replace(/\./g,'-');
+      survey.sendDataTOServer('http://apis.detroitmi.gov/photo_survey/survey/'+tempParcel+'/', tempData, function(response){
           console.log(response);
           // document.querySelector('.phone-valid-alert').className = 'phone-valid-alert active';
       });
     },
     sendDataTOServer: function (url, data, success) {
+      console.log(JSON.stringify(data));
       var params = typeof data == 'string' ? data : Object.keys(data).map(
               function(k){ return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]); }
           ).join('&');
@@ -397,7 +501,7 @@ var surveyModule = (function(){
         }
       };
       xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+      xhr.setRequestHeader('Content-Type', 'application/json');
       xhr.addEventListener("error", function(e){
         console.log(e);
       });

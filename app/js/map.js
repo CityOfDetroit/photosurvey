@@ -45,7 +45,7 @@ var markerSource = {
 var mly = new Mapillary.Viewer(
   "survey",
   "WGl5Z2dkVHEydGMwWlNMOHUzVHR4QToyMmQ4OTRjYzczZWFiYWVi",
-  "twelVPeQU7RXwzO5UgKx1w"
+  null
 );
 var marker;
 // ================== functions =====================
@@ -404,6 +404,60 @@ var closeInfo = function closeInfo() {
   });
   updateURLParams(['',-83.15,42.36,'','','']);
 };
+var closeSurvey = function closeSurvey() {
+  console.log('closing survery');
+  if(document.querySelector('#info').className !== 'active'){
+    document.querySelector('#info').className = 'active';
+    mapPanel.createPanel('city');
+  }
+  console.log(document.querySelector('#info').className === 'active');
+  (document.querySelector('#survey').className === 'active') ? document.querySelector('#survey').className = '' : 0;
+  (document.querySelector('#map-survey').className === 'survey-on') ? document.querySelector('#map-survey').className = '' : 0;
+  (document.querySelector('#map-survey > .survey-display').className === 'survey-display') ? 0 : document.querySelector('#map-survey > .survey-display').className = 'survey-display';
+  (document.querySelector('#map').className === 'mapboxgl-map') ? 0 : document.querySelector('#map').className = 'mapboxgl-map';
+  (document.querySelector('#legend').className === 'survey-on') ? document.querySelector('#legend').className = '' : 0;
+  (document.querySelector('.mapboxgl-control-container').className === 'mapboxgl-control-container') ? 0 : document.querySelector('.mapboxgl-control-container').className = 'mapboxgl-control-container';
+  document.querySelector('.mapboxgl-ctrl-geocoder > input[type="text"]').value = '';
+  setTimeout(function() {
+    mly.resize();
+    map.resize();
+  }, 500);
+  //console.log('going back to city view');
+  map.flyTo({
+      center: [-83.15, 42.36], // starting position
+      zoom: 11.5,
+      bearing: 0,
+
+      // These options control the flight curve, making it move
+      // slowly and zoom out almost completely before starting
+      // to pan.
+      speed: 2, // make the flying slow
+      curve: 1, // change the speed at which it zooms out
+
+      // This can be any easing function: it takes a number between
+      // 0 and 1 and returns another number between 0 and 1.
+      easing: function (t) {
+          return t;
+      }
+  });
+  updateURLParams(['','','','','','','']);
+  updateURLParams(['',-83.15,42.36,'','','']);
+  survey.clearSurvey();
+};
+var verifySurveyClose = function verifySurveyClose(action){
+  console.log(action.target.id);
+  (action.target.id === 'end-survey-btn') ? closeSurvey() : 0;
+  (document.querySelector('#end-survey-popup').className === 'active') ? document.querySelector('#end-survey-popup').className = '' : 0;
+};
+var showSurveyClose = function showSurveyClose(){
+  (document.querySelector('#end-survey-popup').className === 'active') ? 0 : document.querySelector('#end-survey-popup').className = 'active';
+};
+document.getElementById('close-survey-btn').addEventListener('click',showSurveyClose);
+document.querySelectorAll('.end-survey-buttons > span').forEach(function(item){
+  item.addEventListener('click', function(action){
+    verifySurveyClose(action);
+  });
+});
 var addDataLayers = function addDataLayers(){
   map.addSource('parcels', {
     type: 'vector',

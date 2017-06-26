@@ -72,7 +72,7 @@ var panelModule = (function(survey){
         console.log(localParcelData);
         console.log(getTempHTML());
         document.querySelector('.parcel-info.rental-info').innerHTML = '';
-        document.querySelector('.info-container > .rental').innerHTML = '';
+        document.querySelector('.info-container > .rental').innerHTML = '<article class="form-btn" onclick="survey.startSurvey()">START SURVEY</article>';
         document.querySelector('.info-container > .not-rental').innerHTML = '';
         (localParcelData.propstreetcombined !== null) ? document.querySelector('.info-container > .street-name').innerHTML = localParcelData.propstreetcombined: document.querySelector('.info-container > .street-name').innerHTML = 'Loading...';
         document.querySelector('.parcel-data.owner').innerHTML = panel.tempHTML[3];
@@ -293,31 +293,20 @@ var panelModule = (function(survey){
           setTempHTML('clear');
           setPanelTitle('CITY OF DETROIT');
           console.log(this.tempData);
-          $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Initial+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry=&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function( data ) {
-            setTempDisplayType('city');
+          $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=false&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=pjson", function( data ) {
             console.log(getTempData());
             var localData = getTempData();
+            var localHTML = getTempHTML();
+            console.log(localHTML);
             console.log(localData);
             localData.totalNumbers += data.count;
             localData.registrationNumbers += data.count;
             console.log(localData);
+            localHTML += '<article class="renewal"><span>NEED SURVEY</span> ' + localData.registrationNumbers + '</article>';
+            console.log(localHTML);
+            setTempHTML([localHTML]);
             setTempData(localData);
-            console.log(getTempData());
-            $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Renewal+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry=&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function( data ) {
-              console.log(getTempData());
-              var localData = getTempData();
-              var localHTML = getTempHTML();
-              console.log(localHTML);
-              console.log(localData);
-              localData.totalNumbers += data.count;
-              localData.registrationNumbers += data.count;
-              console.log(localData);
-              localHTML += '<article class="renewal"><span>NEED SURVEY</span> ' + localData.registrationNumbers + '</article>';
-              console.log(localHTML);
-              setTempHTML([localHTML]);
-              setTempData(localData);
-              loadPanel();
-            });
+            loadPanel();
           });
       }
     }
