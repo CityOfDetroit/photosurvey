@@ -281,8 +281,11 @@ var surveyModule = (function(){
       });
     },
     setPostData: function(index, value){
+      console.log(value);
+      console.log(index);
+      console.log(this.surveyPostData.answers);
+      console.log(this.surveyPostData.answers[index]);
       if(Array.isArray(value)){
-        console.log(value);
         let tempAnswer = '';
         let valueSize = value.length;
         value.forEach(function(item, index){
@@ -298,23 +301,83 @@ var surveyModule = (function(){
         this.surveyPostData.answers[index].answer = value;
       }
     },
+    loadSurveyWithinCorridor: function(){
+      var corridorName = '';
+      switch (currentToggleID) {
+        case "c-w-vernor":
+          corridorName = 'W+Vernor';
+          break;
+        case "c-e-vernor":
+          corridorName = 'E+Vernor';
+          break;
+        case "c-michigan":
+          corridorName = 'Michigan';
+          break;
+        case "c-woodward":
+          corridorName = 'Woodward';
+          break;
+        case "c-livernois":
+          corridorName = 'Livernois';
+          break;
+        case "c-grand-river":
+          corridorName = 'Grand+River';
+          break;
+        case "c-seven-mile":
+          corridorName = 'Seven+Mile';
+          break;
+        case "c-mcnichols":
+          corridorName = 'McNichols';
+          break;
+        case "c-gratiot":
+          corridorName = 'Gratiot';
+          break;
+        case "c-jefferson":
+          corridorName = 'Jefferson';
+          break;
+        case "c-warren":
+          corridorName = 'Warren';
+          break;
+        default:
+
+      }
+      $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/DoIT/Corridor_Boundaries/MapServer/0/query?where=Corridor%3D%27"+ corridorName +"%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function( corridor ) {
+        console.log(corridor);
+        var simplifiedCorridor = turf.simplify(corridor.features[0], 0.003, false);
+        console.log(simplifiedCorridor);
+        var arcCorridorPolygon = Terraformer.ArcGIS.convert(simplifiedCorridor.geometry);
+        console.log(arcCorridorPolygon);
+       $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcCorridorPolygon))+"&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=json", function( data ) {
+         console.log(data);
+         var randomParcel = data.features[Math.floor(Math.random()*data.features.length)];
+         var llb = new mapboxgl.LngLatBounds(randomParcel.geometry.rings[0]);
+         var center = llb.getCenter();
+         console.log(center);
+         mly.moveCloseTo(center.lat, center.lng)
+           .then(
+               function(node) { console.log(node.key); },
+               function(error) { console.error(error); });
+       });
+     });
+    },
     startSurvey: function(){
       console.log(currentURLParams.parcel);
       console.log(getQueryVariable('parcel'));
       console.log(getQueryVariable('lat'));
       console.log(getQueryVariable('lng'));
-      if(getQueryVariable('parcel')){
-        mly.moveCloseTo(getQueryVariable('lat'), getQueryVariable('lng'))
-          .then(
-              function(node) { console.log(node.key); },
-              function(error) { console.error(error); });
+      console.log(getQueryVariable('survey'));
+      if(getQueryVariable('survey') === 'on'){
+        this.loadSurveyWithinCorridor();
       }else{
-        mly.moveToKey('twelVPeQU7RXwzO5UgKx1w')
-          .then(
-              function(node) { console.log(node.key); },
-              function(error) { console.error(error); });
+        if(getQueryVariable('parcel')){
+          mly.moveCloseTo(getQueryVariable('lat'), getQueryVariable('lng'))
+            .then(
+                function(node) { console.log(node.key); },
+                function(error) { console.error(error); });
+        }else{
+          this.loadSurveyWithinCorridor();
+        }
+        this.displaySurveyPanels();
       }
-      this.displaySurveyPanels();
     },
     startNewSurvey: function(){
       survey.setPastSurveys(false);
@@ -323,6 +386,7 @@ var surveyModule = (function(){
     loadAnotherSurvey: function(){
       document.querySelector('.survey-display > .street-name > h1').innerHTML = 'LOADING<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>';
       this.clearAnswersButtons();
+      this.startSurvey();
     },
     displaySurveyPanels: function(){
       (document.querySelector('#info').className === 'active') ? document.querySelector('#info').className = '' : 0;
@@ -482,10 +546,14 @@ var surveyModule = (function(){
       tempData.answers.forEach(function(item){
         (item.answer !== null) ? cleanAnswer.push(item) : 0;
       });
-      tempData.answers = cleanAnswer;
+      let newData =  {
+        'survey_id'   : 'default',
+        'user_id'     : 'xyz',
+        'answers'     : cleanAnswer
+      };
       console.log(tempData);
       tempParcel = tempParcel.replace(/\./g,'-');
-      survey.sendDataTOServer('http://apis.detroitmi.gov/photo_survey/survey/'+tempParcel+'/', tempData);
+      survey.sendDataTOServer('http://apis.detroitmi.gov/photo_survey/survey/'+tempParcel+'/', newData);
     },
     sendDataTOServer: function (url, data, success) {
       data = JSON.stringify(data);

@@ -7,7 +7,7 @@ var bounds = [
     [		-82.8754, 	42.5197]  // Northeast coordinates
 ];
 var baseMapStyles = [
-  'cj2m68vfx001s2rs0nyherr29',
+  'ciymfavyb00072sqe0bu9rwht',
   'cj2m1f9k400132rmr1jhjq2gn'
 ];
 var parcelData = {
@@ -48,6 +48,7 @@ var mly = new Mapillary.Viewer(
   null
 );
 var marker;
+var currentToggleID = 'c-w-vernor';
 // ================== functions =====================
 map.on("style.load", function() {
   map.addSource("markers", markerSource);
@@ -382,7 +383,7 @@ var toggleBaseMap = function toggleBaseMap(e) {
 var closeInfo = function closeInfo() {
   //console.log('closing');
   // (document.querySelector('#info').className === 'active') ? document.querySelector('#info').className = '' : document.querySelector('#info').className = 'active';
-  (document.querySelector('.info-container > .street-name').innerHTML === 'CITY OF DETROIT') ? document.querySelector('#info').className = '' : mapPanel.createPanel('city');
+  mapPanel.createPanel('city');
   document.querySelector('.mapboxgl-ctrl-geocoder > input[type="text"]').value = '';
   //console.log('going back to city view');
   map.flyTo({
@@ -458,6 +459,83 @@ document.querySelectorAll('.end-survey-buttons > span').forEach(function(item){
     verifySurveyClose(action);
   });
 });
+var changeToggleLayer = function changeToggleLayer(id){
+  currentToggleID = id;
+  map.removeLayer('need-survey');
+  addToggleLayer();
+};
+document.querySelectorAll('.layer-controller-toggle').forEach(function(item){
+  item.addEventListener('click', function(toggle){
+    currentToggleID = toggle.target.id;
+    addToggleLayer();
+  });
+});
+var addToggleLayer = function addToggleLayer(){
+  var corridorName = '';
+  switch (currentToggleID) {
+    case "c-w-vernor":
+      corridorName = 'W+Vernor';
+      break;
+    case "c-e-vernor":
+      corridorName = 'E+Vernor';
+      break;
+    case "c-michigan":
+      corridorName = 'Michigan';
+      break;
+    case "c-woodward":
+      corridorName = 'Woodward';
+      break;
+    case "c-livernois":
+      corridorName = 'Livernois';
+      break;
+    case "c-grand-river":
+      corridorName = 'Grand+River';
+      break;
+    case "c-seven-mile":
+      corridorName = 'Seven+Mile';
+      break;
+    case "c-mcnichols":
+      corridorName = 'McNichols';
+      break;
+    case "c-gratiot":
+      corridorName = 'Gratiot';
+      break;
+    case "c-jefferson":
+      corridorName = 'Jefferson';
+      break;
+    case "c-warren":
+      corridorName = 'Warren';
+      break;
+    default:
+
+  }
+  console.log(encodeURI(corridorName));
+  $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/DoIT/Corridor_Boundaries/MapServer/0/query?where=Corridor%3D%27"+ corridorName +"%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function( corridor ) {
+    console.log(corridor);
+    var simplifiedCorridor = turf.simplify(corridor.features[0], 0.003, false);
+    console.log(simplifiedCorridor);
+    var arcCorridorPolygon = Terraformer.ArcGIS.convert(simplifiedCorridor.geometry);
+    console.log(arcCorridorPolygon);
+     $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcCorridorPolygon))+"&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=json", function( data ) {
+       console.log(data);
+       var new_Filter = ["in",'parcelno'];
+       for (var i = 0; i < data.features.length; i++) {
+         new_Filter.push(data.features[i].attributes.PARCELNO);
+       }
+       map.addLayer({
+        "id": "need-survey",
+        "type": "fill",
+        "source": "parcels",
+        'source-layer': 'parcelsgeojson',
+        'filter': new_Filter,
+        "paint": {
+          "fill-color":"#DF5800",
+          "fill-opacity":0.3
+        }
+      });
+     });
+  });
+};
 var addDataLayers = function addDataLayers(){
   map.addSource('parcels', {
     type: 'vector',
@@ -585,48 +663,13 @@ var addDataLayers = function addDataLayers(){
      "source": "parcels",  minzoom: 15.5,
      "layout": {},
      "paint": {
-       "line-color": '#BD0019'
+       "line-color": '#BD0019',
+       "line-width": 3
      },
      'source-layer': 'parcelsgeojson',
      "filter": ["==", "parcelno", ""]
    });
-
-   $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=json", function( data ) {
-     console.log(data);
-     var new_Filter = ["in",'parcelno'];
-     for (var i = 0; i < data.features.length; i++) {
-       new_Filter.push(data.features[i].attributes.PARCELNO);
-     }
-     map.addLayer({
-      "id": "need-survey",
-      "type": "fill",
-      "source": "parcels",
-      'source-layer': 'parcelsgeojson',
-      'filter': new_Filter,
-      "paint": {
-        "fill-color":"#DF5800",
-        "fill-opacity":0.3
-      }
-    });
-   });
-  //  $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/ArcGIS/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Initial+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=parcelno&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=pjson&token=", function( data ) {
-  //    //console.log(data);
-  //    var new_Filter = ["in",'parcelno'];
-  //    for (var i = 0; i < data.features.length; i++) {
-  //      new_Filter.push(data.features[i].attributes.ParcelNo);
-  //    }
-  //    map.addLayer({
-  //     "id": "parcel-fill-initial",
-  //     "type": "fill",
-  //     "source": "parcels",
-  //     'source-layer': 'parcelsgeojson',
-  //     'filter': new_Filter,
-  //     "paint": {
-  //       "fill-color":"#114BC7",
-  //       "fill-opacity":0.5
-  //     }
-  //   });
-  //  });
+   addToggleLayer();
 };
 map.on('style.load', function(){
   addDataLayers();

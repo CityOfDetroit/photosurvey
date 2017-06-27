@@ -1,107 +1,5 @@
 "use strict";
 var panelModule = (function(survey){
-  var setTempData = function(obj){
-    panel.tempData.registrationNumbers = obj.registrationNumbers;
-    panel.tempData.totalNumbers = obj.totalNumbers;
-  };
-  var getTempData = function(){
-    return panel.tempData;
-  };
-  var setTempHTML = function(obj){
-    if(obj.constructor === Array){
-      panel.tempHTML = obj;
-    }else{
-      panel.tempHTML.length = 0;
-    }
-  };
-  var getTempHTML = function(){
-    return panel.tempHTML;
-  };
-  var getTempFeatureData = function getTempFeatureData(){
-    return panel.featureData;
-  };
-  var setTempFeatureData = function setTempFeatureData(feature){
-    panel.featureData = feature;
-  };
-  var callCreatePanel = function callCreatePanel(type){
-    panel.createPanel(type);
-  };
-  var setPanelTitle = function setPanelTitle(title){
-    panel.title = title;
-  };
-  var setParcelData = function setParcelData(parcel){
-    panel.parcelData = parcel;
-  };
-  var getParcelData = function getParcelData(){
-    return panel.parcelData;
-  };
-  var getTempDisplayType = function getTempDisplayType(){
-    return panel.getDisplayType();
-  };
-  var setTempDisplayType = function setTempDisplayType(type){
-    return panel.setDisplayType(type);
-  };
-  var flyToPosition = function flyToPosition(params){
-    console.log(params);
-    map.flyTo({
-        center: [params.lng, params.lat],
-        zoom: params.zoom,
-        bearing: 0,
-
-        // These options control the flight curve, making it move
-        // slowly and zoom out almost completely before starting
-        // to pan.
-        speed: 2, // make the flying slow
-        curve: 1, // change the speed at which it zooms out
-
-        // This can be any easing function: it takes a number between
-        // 0 and 1 and returns another number between 0 and 1.
-        easing: function (t) {
-            return t;
-        }
-    });
-      console.log(params);
-  };
-  var loadPanel = function(){
-    console.log(getTempDisplayType());
-    console.log(panel.displayType);
-    switch (true) {
-      case panel.displayType === 'parcel':
-        console.log('loading parcel data');
-        var localParcelData = getParcelData();
-        console.log(localParcelData);
-        console.log(getTempHTML());
-        document.querySelector('.parcel-info.rental-info').innerHTML = '';
-        document.querySelector('.info-container > .rental').innerHTML = '<article class="form-btn" onclick="survey.startSurvey()">START SURVEY</article>';
-        document.querySelector('.info-container > .not-rental').innerHTML = '';
-        (localParcelData.propstreetcombined !== null) ? document.querySelector('.info-container > .street-name').innerHTML = localParcelData.propstreetcombined: document.querySelector('.info-container > .street-name').innerHTML = 'Loading...';
-        document.querySelector('.parcel-data.owner').innerHTML = panel.tempHTML[3];
-        document.querySelector('.parcel-data.building').innerHTML = panel.tempHTML[4];
-        map.setFilter("parcel-fill-hover", ["==", "parcelno", currentURLParams.parcel]);
-        break;
-      case panel.displayType === 'neighborhood':
-        document.querySelector('.info-container > .street-name').innerHTML = panel.title;
-        document.querySelector('.info-container > .rental').innerHTML = '';
-        document.querySelector('.info-container > .total-rentals').innerHTML = "<h4>TOTAL PROPERTIES</h4><p>0</p>";
-        document.querySelector('.overall-number').innerHTML = panel.tempHTML;
-        document.querySelector('.info-container > .total-rentals > p').innerHTML = panel.tempData.totalNumbers;
-        break;
-      case panel.displayType === 'district':
-        document.querySelector('.info-container > .street-name').innerHTML = panel.title;
-        document.querySelector('.info-container > .rental').innerHTML = '';
-        document.querySelector('.info-container > .total-rentals').innerHTML = "<h4>TOTAL PROPERTIES</h4><p>0</p>";
-        document.querySelector('.overall-number').innerHTML = panel.tempHTML;
-        document.querySelector('.info-container > .total-rentals > p').innerHTML = panel.tempData.totalNumbers;
-        break;
-      default:
-        document.querySelector('.info-container > .street-name').innerHTML = panel.title;
-        document.querySelector('.info-container > .rental').innerHTML = '<article class="form-btn" onclick="survey.startSurvey()">START SURVEY</article>';
-        document.querySelector('.info-container > .total-rentals').innerHTML = "<h4>TOTAL PROPERTIES</h4><p>0</p>";
-        document.querySelector('.overall-number').innerHTML = panel.tempHTML;
-        document.querySelector('.info-container > .total-rentals > p').innerHTML = panel.tempData.totalNumbers;
-    }
-    (document.querySelector('#info').className === 'active') ? 0 : document.querySelector('#info').className = 'active';
-  };
   var panel = {
     'title'         : '',
     'featureData'   : null,
@@ -120,11 +18,104 @@ var panelModule = (function(survey){
     getDisplayType : function(){
       return this.displayType;
     },
+    setTempData : function(obj){
+      panel.tempData.registrationNumbers = obj.registrationNumbers;
+      panel.tempData.totalNumbers = obj.totalNumbers;
+    },
+    getTempData : function(){
+      return panel.tempData;
+    },
+    setTempHTML : function(obj){
+      if(obj.constructor === Array){
+        panel.tempHTML = obj;
+      }else{
+        panel.tempHTML.length = 0;
+      }
+    },
+    getTempHTML : function(){
+      return panel.tempHTML;
+    },
+    getTempFeatureData : function (){
+      return panel.featureData;
+    },
+    setTempFeatureData : function (feature){
+      panel.featureData = feature;
+    },
+    setPanelTitle : function (title){
+      panel.title = title;
+    },
+    setParcelData : function (parcel){
+      panel.parcelData = parcel;
+    },
+    getParcelData : function (){
+      return panel.parcelData;
+    },
+    flyToPosition : function (params){
+      console.log(params);
+      map.flyTo({
+          center: [params.lng, params.lat],
+          zoom: params.zoom,
+          bearing: 0,
+
+          // These options control the flight curve, making it move
+          // slowly and zoom out almost completely before starting
+          // to pan.
+          speed: 2, // make the flying slow
+          curve: 1, // change the speed at which it zooms out
+
+          // This can be any easing function: it takes a number between
+          // 0 and 1 and returns another number between 0 and 1.
+          easing: function (t) {
+              return t;
+          }
+      });
+    },
+    loadPanel : function(){
+      console.log(this.getDisplayType());
+      console.log(this.displayType);
+      switch (true) {
+        case this.displayType === 'parcel':
+          console.log('loading parcel data');
+          var localParcelData = this.getParcelData();
+          console.log(localParcelData);
+          console.log(typeof(localParcelData));
+          console.log(this.getTempHTML());
+          document.querySelector('.parcel-info.rental-info').innerHTML = '';
+          document.querySelector('.info-container > .rental').innerHTML = '<article class="form-btn" onclick="survey.startSurvey()">START SURVEY</article>';
+          document.querySelector('.info-container > .not-rental').innerHTML = '';
+          (localParcelData.propstreetcombined !== 'null') ? document.querySelector('.info-container > .street-name').innerHTML = localParcelData.propstreetcombined: document.querySelector('.info-container > .street-name').innerHTML = 'Loading...';
+          document.querySelector('.parcel-data.owner').innerHTML = this.tempHTML[3];
+          document.querySelector('.parcel-data.building').innerHTML = this.tempHTML[4];
+          map.setFilter("parcel-fill-hover", ["==", "parcelno", currentURLParams.parcel]);
+          break;
+        case this.displayType === 'neighborhood':
+          document.querySelector('.info-container > .street-name').innerHTML = this.title;
+          document.querySelector('.info-container > .rental').innerHTML = '';
+          document.querySelector('.info-container > .total-rentals').innerHTML = "<h4>TOTAL PROPERTIES</h4><p>0</p>";
+          document.querySelector('.overall-number').innerHTML = this.tempHTML;
+          document.querySelector('.info-container > .total-rentals > p').innerHTML = this.tempData.totalNumbers;
+          break;
+        case this.displayType === 'district':
+          document.querySelector('.info-container > .street-name').innerHTML = this.title;
+          document.querySelector('.info-container > .rental').innerHTML = '';
+          document.querySelector('.info-container > .total-rentals').innerHTML = "<h4>TOTAL PROPERTIES</h4><p>0</p>";
+          document.querySelector('.overall-number').innerHTML = this.tempHTML;
+          document.querySelector('.info-container > .total-rentals > p').innerHTML = this.tempData.totalNumbers;
+          break;
+        default:
+          document.querySelector('.info-container > .street-name').innerHTML = this.title;
+          document.querySelector('.info-container > .rental').innerHTML = '<article class="form-btn" onclick="survey.startSurvey()">START SURVEY</article>';
+          document.querySelector('.info-container > .total-rentals').innerHTML = "<h4>TOTAL PROPERTIES</h4><p>0</p>";
+          document.querySelector('.overall-number').innerHTML = this.tempHTML;
+          document.querySelector('.info-container > .total-rentals > p').innerHTML = this.tempData.totalNumbers;
+      }
+      (document.querySelector('#info').className === 'active') ? 0 : document.querySelector('#info').className = 'active';
+    },
     clearPanel      : function(){
       console.log('clearing panel');
       this.tempData.registrationNumbers = 0;
       this.tempData.totalNumbers = 0;
-      setTempHTML('clear');
+      this.setTempHTML('clear');
       console.log(this.tempHTML);
       document.querySelector('.overall-number').innerHTML = '';
       document.querySelector('.parcel-info').innerHTML = '';
@@ -175,128 +166,112 @@ var panelModule = (function(survey){
           console.log(currentURLParams.district.split('%20')[1]);
           $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/NeighborhoodsApp/council_district/MapServer/1/query?where=&text=District+"+ currentURLParams.district.split('%20')[1] +"&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function( data ) {
             console.log(data);
-            setTempFeatureData(data.features[0]);
-            console.log(getTempFeatureData());
-            callCreatePanel('district');
+            panel.setTempFeatureData(data.features[0]);
+            console.log(panel.getTempFeatureData());
+            panel.createPanel('district');
           });
           break;
         case currentURLParams.neighborhood !== '':
           console.log(decodeURI(currentURLParams.neighborhood));
           $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/NeighborhoodsApp/Neighborhoods/MapServer/1/query?where=&text="+ decodeURI(currentURLParams.neighborhood) +"&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function( data ) {
             console.log(data);
-            setTempFeatureData(data.features[0]);
-            console.log(getTempFeatureData());
-            callCreatePanel('neighborhood');
+            panel.setTempFeatureData(data.features[0]);
+            console.log(panel.getTempFeatureData());
+            panel.createPanel('neighborhood');
           });
           break;
         default:
           console.log(decodeURI(currentURLParams.parcel));
-          setTempFeatureData({'properties':{'parcelno':currentURLParams.parcel}});
-          callCreatePanel('parcel');
+          panel.setTempFeatureData({'properties':{'parcelno':currentURLParams.parcel}});
+          panel.createPanel('parcel');
       }
     },
     createPanelData : function(){
       console.log(this.displayType);
+      console.log(this.getDisplayType());
       switch (true) {
         case this.displayType === 'parcel':
-          setParcelData(null);
-          setTempHTML('clear');
+          panel.setParcelData(null);
+          panel.setTempHTML('clear');
           var tempParcelDataHTML = new Array(5);
           console.log('loading parcel data');
           console.log(this.displayType);
           console.log(this.featureData.properties.parcelno);
           $.getJSON("http://apis.detroitmi.gov/assessments/parcel/"+this.featureData.properties.parcelno.replace(/\./g,'_')+"/", function( parcel ) {
-            setTempDisplayType('parcel');
+            panel.setDisplayType('parcel');
             console.log(parcel);
-            console.log(getTempDisplayType());
+            console.log(panel.getDisplayType());
             tempParcelDataHTML[3] = '<div class="data-view-btn" data-view="owner" onclick="mapPanel.switchParcelDataViews(this)">OWNER INFORMATION <span>&#10095;</span></div>';
             tempParcelDataHTML[4] = '<div class="data-view-btn" data-view="building" onclick="mapPanel.switchParcelDataViews(this)">PROPERTY INFORMATION <span>&#10095;</span></div>';
-            setTempHTML(tempParcelDataHTML);
-            setParcelData(parcel);
-            loadPanel();
+            panel.setTempHTML(tempParcelDataHTML);
+            panel.setParcelData(parcel);
+            panel.loadPanel();
           });
-          flyToPosition(currentURLParams);
+          this.flyToPosition(currentURLParams);
           break;
         case this.displayType === 'neighborhood':
-          setTempHTML('clear');
+          this.setTempHTML('clear');
           console.log('creating neighborhood panel');
           var simplifiedNeighborhood = turf.simplify(this.featureData, 0.003, false);
           console.log(simplifiedNeighborhood);
-          setPanelTitle(simplifiedNeighborhood.properties.name);
+          this.setPanelTitle(simplifiedNeighborhood.properties.name);
           var arcNeighborhoodPolygon = Terraformer.ArcGIS.convert(simplifiedNeighborhood.geometry);
           // console.log(arcPolygon);
-          $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Initial+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcNeighborhoodPolygon))+"&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function( data ) {
-            console.log(getTempData());
-            setTempDisplayType('neighborhood');
-            var localNeighborhoodData = getTempData();
+          $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcNeighborhoodPolygon))+"&geometryType=esriGeometryPolygon&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=false&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=pjson", function( data ) {
+            panel.setDisplayType('neighborhood');
+            console.log(data);
+            console.log(panel.getTempData());
+            var localNeighborhoodData = panel.getTempData();
+            var localNeighborhoodHTML = panel.getTempHTML();
+            console.log(localNeighborhoodHTML);
             console.log(localNeighborhoodData);
             localNeighborhoodData.totalNumbers += data.count;
             localNeighborhoodData.registrationNumbers += data.count;
             console.log(localNeighborhoodData);
-            setTempData(localNeighborhoodData);
-            console.log(getTempData());
-            $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Renewal+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcNeighborhoodPolygon))+"&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function( data ) {
-              console.log(getTempData());
-              var localNeighborhoodData = getTempData();
-              var localNeighborhoodHTML = getTempHTML();
-              console.log(localNeighborhoodHTML);
-              console.log(localNeighborhoodData);
-              localNeighborhoodData.totalNumbers += data.count;
-              localNeighborhoodData.registrationNumbers += data.count;
-              console.log(localNeighborhoodData);
-              localNeighborhoodHTML += '<article class="renewal"><span>NEED SURVEY</span> ' + localNeighborhoodData.registrationNumbers + '</article>';
-              console.log(localNeighborhoodHTML);
-              setTempHTML([localNeighborhoodHTML]);
-              setTempData(localNeighborhoodData);
-              loadPanel();
-            });
+            localNeighborhoodHTML += '<article class="renewal"><span>NEED SURVEY</span> ' + localNeighborhoodData.registrationNumbers + '</article>';
+            console.log(localNeighborhoodHTML);
+            panel.setTempHTML([localNeighborhoodHTML]);
+            panel.setTempData(localNeighborhoodData);
+            panel.loadPanel();
           });
-          flyToPosition(currentURLParams);
+          this.flyToPosition(currentURLParams);
           break;
         case this.displayType === 'district':
-          setTempHTML('clear');
+          this.setTempHTML('clear');
           console.log('creating district panel');
           var simplifiedDistrict = turf.simplify(this.featureData, 0.003, false);
           console.log(simplifiedDistrict);
-          setPanelTitle(simplifiedDistrict.properties.name);
+          this.setPanelTitle(simplifiedDistrict.properties.name);
           var arcDistrictPolygon = Terraformer.ArcGIS.convert(simplifiedDistrict.geometry);
           // console.log(arcPolygon);
-          $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Initial+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcDistrictPolygon))+"&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function( data ) {
-            console.log(getTempData());
-            setTempDisplayType('district');
-            var localDistrictData = getTempData();
+          $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcDistrictPolygon))+"&geometryType=esriGeometryPolygon&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=false&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=pjson", function( data ) {
+            panel.setDisplayType('district');
+            console.log(panel.getTempData());
+            var localDistrictData = panel.getTempData();
+            var localDistrictHTML = panel.getTempHTML();
+            console.log(localDistrictHTML);
             console.log(localDistrictData);
             localDistrictData.totalNumbers += data.count;
             localDistrictData.registrationNumbers += data.count;
             console.log(localDistrictData);
-            setTempData(localDistrictData);
-            console.log(getTempData());
-            $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/arcgis/rest/services/Rental_Inspections/FeatureServer/0/query?where=ACTION_DESCRIPTION%3D%27Issue+Renewal+Registration%27+AND+ParcelNo+IS+NOT+NULL&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcDistrictPolygon))+"&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=json&token=", function( data ) {
-              console.log(getTempData());
-              var localDistrictData = getTempData();
-              var localDistrictHTML = getTempHTML();
-              console.log(localDistrictHTML);
-              console.log(localDistrictData);
-              localDistrictData.totalNumbers += data.count;
-              localDistrictData.registrationNumbers += data.count;
-              console.log(localDistrictData);
-              localDistrictHTML += '<article class="renewal"><span>NEED SURVEY</span> ' + localDistrictData.registrationNumbers + '</article>';
-              console.log(localDistrictHTML);
-              setTempHTML([localDistrictHTML]);
-              setTempData(localDistrictData);
-              loadPanel();
-            });
+            localDistrictHTML += '<article class="renewal"><span>NEED SURVEY</span> ' + localDistrictData.registrationNumbers + '</article>';
+            console.log(localDistrictHTML);
+            panel.setTempHTML([localDistrictHTML]);
+            panel.setTempData(localDistrictData);
+            panel.loadPanel();
           });
-          flyToPosition(currentURLParams);
+          this.flyToPosition(currentURLParams);
           break;
         default:
-          setTempHTML('clear');
-          setPanelTitle('CITY OF DETROIT');
+          this.setTempHTML('clear');
+          this.setPanelTitle('CITY OF DETROIT');
           console.log(this.tempData);
           $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=false&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=pjson", function( data ) {
-            console.log(getTempData());
-            var localData = getTempData();
-            var localHTML = getTempHTML();
+            panel.setDisplayType('city');
+            console.log(data);
+            console.log(panel.getTempData());
+            var localData = panel.getTempData();
+            var localHTML = panel.getTempHTML();
             console.log(localHTML);
             console.log(localData);
             localData.totalNumbers += data.count;
@@ -304,9 +279,9 @@ var panelModule = (function(survey){
             console.log(localData);
             localHTML += '<article class="renewal"><span>NEED SURVEY</span> ' + localData.registrationNumbers + '</article>';
             console.log(localHTML);
-            setTempHTML([localHTML]);
-            setTempData(localData);
-            loadPanel();
+            panel.setTempHTML([localHTML]);
+            panel.setTempData(localData);
+            panel.loadPanel();
           });
       }
     }
