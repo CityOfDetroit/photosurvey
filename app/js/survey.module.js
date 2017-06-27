@@ -69,7 +69,7 @@ var surveyModule = (function(){
         {
           text: 'Structure with Blight',
           value : 'structure',
-          nextQuestionKey: 3,
+          nextQuestionKey: 2,
         }
       ],
       [
@@ -320,6 +320,10 @@ var surveyModule = (function(){
       survey.setPastSurveys(false);
       survey.loadHTML();
     },
+    loadAnotherSurvey: function(){
+      document.querySelector('.survey-display > .street-name > h1').innerHTML = 'LOADING<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>';
+      this.clearAnswersButtons();
+    },
     displaySurveyPanels: function(){
       (document.querySelector('#info').className === 'active') ? document.querySelector('#info').className = '' : 0;
       (document.querySelector('#survey').className === 'active') ? 0 : document.querySelector('#survey').className = 'active';
@@ -456,6 +460,10 @@ var surveyModule = (function(){
         console.log('answer was not selected');
       }
     },
+    clearAnswersButtons: function(){
+      document.querySelector('.question-container').innerHTML = '';
+      document.querySelector('.survey-buttons').innerHTML = '';
+    },
     loadHTML: function(){
       if(survey.getPastSurveys()){
         document.querySelector('.question-container').innerHTML = '<h5>Parcel was already surveyed</h5>';
@@ -477,36 +485,24 @@ var surveyModule = (function(){
       tempData.answers = cleanAnswer;
       console.log(tempData);
       tempParcel = tempParcel.replace(/\./g,'-');
-      survey.sendDataTOServer('http://apis.detroitmi.gov/photo_survey/survey/'+tempParcel+'/', tempData, function(response){
-          console.log(response);
-          // document.querySelector('.phone-valid-alert').className = 'phone-valid-alert active';
-      });
+      survey.sendDataTOServer('http://apis.detroitmi.gov/photo_survey/survey/'+tempParcel+'/', tempData);
     },
     sendDataTOServer: function (url, data, success) {
-      console.log(JSON.stringify(data));
-      var params = typeof data == 'string' ? data : Object.keys(data).map(
-              function(k){ return encodeURIComponent(k) + '=' + encodeURIComponent(data[k]); }
-          ).join('&');
-      console.log(params);
-      var xhr = window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
-      xhr.open('POST', url);
-      xhr.onload  = function() {
-        if (xhr.readyState>3 && xhr.status==200) {
-          console.log('xhr success');
-          success(xhr.responseText);
-        }else{
-          console.log('xhr error');
-          // document.querySelector('.invalid-phone-error-message').innerHTML = 'There was an error with your request. Please try again.';
-          // document.querySelector('.phone-invalid-alert').className = 'phone-invalid-alert active';
-        }
-      };
-      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.addEventListener("error", function(e){
-        console.log(e);
+      data = JSON.stringify(data);
+      console.log(data);
+      $.ajax({
+          url: url,
+          type: "POST",
+          data: data,
+          dataType:'json',
+          success: function(response){
+            document.querySelector('.survey-buttons').innerHTML = '<button onclick="survey.loadAnotherSurvey()">START OTHER SURVEY</button>';
+            document.querySelector('.question-container').innerHTML = '<h5>Your surveys has been saved.</h5>'
+          },
+          error: function(error){
+              console.log("Something went wrong", error);
+          }
       });
-      xhr.send(params);
-      return xhr;
     },
     loadQuestion: function(){
       console.log(survey.getSurveyIndex());

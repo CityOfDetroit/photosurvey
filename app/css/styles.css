@@ -302,6 +302,12 @@ main {
   width: 100%;
   display: block; }
 
+.question-container > .answers {
+  padding-top: 1em; }
+
+.survey-buttons {
+  padding: 1em; }
+
 .survey-buttons > button {
   padding: .5em 1em; }
 
