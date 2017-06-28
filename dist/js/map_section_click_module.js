@@ -6,17 +6,19 @@ var mapSectionClickModule = function () {
     var councilFeatures = null;
     var neighborhoodsFeatures = null;
     var parcelFeatures = null;
+    var parcelSurvey = null;
     try {
       councilFeatures = map.queryRenderedFeatures(e.point, { layers: ['council-fill'] });
       neighborhoodsFeatures = map.queryRenderedFeatures(e.point, { layers: ['neighborhoods-fill'] });
       parcelFeatures = map.queryRenderedFeatures(e.point, { layers: ['parcel-fill'] });
-      parcelFeatures = map.queryRenderedFeatures(e.point, { layers: ['need-survey'] });
+      parcelSurvey = map.queryRenderedFeatures(e.point, { layers: ['need-survey'] });
     } catch (e) {
       //console.log("ERROR: " +e);
     } finally {
-      //console.log(councilFeatures.length);
-      //console.log(neighborhoodsFeatures.length);
-      //console.log(parcelFeatures.length);
+      console.log(councilFeatures);
+      console.log(neighborhoodsFeatures);
+      console.log(parcelFeatures);
+      console.log(parcelSurvey);
     }
     switch (true) {
       case councilFeatures.length !== 0:
@@ -42,7 +44,7 @@ var mapSectionClickModule = function () {
           console.log('survey going no click enable');
         } else {
           mapPanel.featureData = parcelFeatures[0];
-          updateURLParams([16, e.lngLat.lng, e.lngLat.lat, parcelFeatures[0].properties.parcelno, '', '']);
+          updateURLParams([17, e.lngLat.lng, e.lngLat.lat, parcelFeatures[0].properties.parcelno, '', '']);
           mapPanel.createPanel('parcel');
         }
         break;
