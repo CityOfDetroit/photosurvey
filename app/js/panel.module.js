@@ -20,26 +20,19 @@ var panelModule = (function(survey){
       let tempParcel = panel.getParcelNumber();
       tempParcel = tempParcel.replace(/\./g,'_');
       console.log(tempParcel);
-      $.getJSON("http://apis.detroitmi.gov/photo_survey/"+tempParcel+"/", function( data ) {
+      $.getJSON("https://apis.detroitmi.gov/photo_survey/"+tempParcel+"/", function( data ) {
         console.log(data);
         if(data.images.length > 0){
           document.getElementById('parcel-image').innerHTML ='<h5 style="text-align:center">LOADING IMAGE<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></h5>';
           panel.updateImageList(data.images);
-          panel.getBase64Data();
+          panel.loadImage(data.images);
         }else{
           console.log('no images found');
         }
       });
     },
-    getBase64Data: function(){
-      console.log(panel.imageList);
-      let tempImageList = panel.imageList;
-      $.getJSON("http://apis.detroitmi.gov/photo_survey/image/" + tempImageList[0] + "/", function( data ) {
-        panel.loadImage(data);
-      });
-    },
     loadImage: function(data){
-      document.getElementById('parcel-image').innerHTML ='<img src="data:image/jpeg;base64,' + data + '" alt="parcel image"></img>';
+      document.getElementById('parcel-image').innerHTML ='<img src="https://apis.detroitmi.gov' + data[0] + '" alt="parcel image"></img>';
     },
     setParcelNumber : function(parcel) {
       console.log(parcel);

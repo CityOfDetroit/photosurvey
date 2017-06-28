@@ -631,7 +631,7 @@ var surveyModule = (function(){
             console.log(cleanParcelID);
             switch (true) {
               case tempParcel === null:
-                $.getJSON('http://apis.detroitmi.gov/photo_survey/count/'+cleanParcelID+'/' , function( surveys ) {
+                $.getJSON('https://apis.detroitmi.gov/photo_survey/count/'+cleanParcelID+'/' , function( surveys ) {
                   console.log('new parcel');
                   (surveys.count > 0) ? survey.setPastSurveys(true) : survey.setPastSurveys(false);
                   survey.loadHTML();
@@ -640,7 +640,7 @@ var surveyModule = (function(){
               case getQueryVariable('survey') === 'on' && tempParcel !== parcel.candidates[0].attributes.User_fld:
                 console.log('clear survey');
                 survey.clearSurvey();
-                $.getJSON('http://apis.detroitmi.gov/photo_survey/count/'+cleanParcelID+'/' , function( surveys ) {
+                $.getJSON('https://apis.detroitmi.gov/photo_survey/count/'+cleanParcelID+'/' , function( surveys ) {
                   console.log(surveys.count);
                   (surveys.count > 0) ? survey.setPastSurveys(true) : survey.setPastSurveys(false);
                   survey.loadHTML();
@@ -648,7 +648,7 @@ var surveyModule = (function(){
                 break;
               default:
                 console.log('same parcel');
-                $.getJSON('http://apis.detroitmi.gov/photo_survey/count/'+cleanParcelID+'/' , function( surveys ) {
+                $.getJSON('https://apis.detroitmi.gov/photo_survey/count/'+cleanParcelID+'/' , function( surveys ) {
                   console.log(surveys.count);
                   (surveys.count > 0) ? survey.setPastSurveys(true) : survey.setPastSurveys(false);
                 });
@@ -716,7 +716,7 @@ var surveyModule = (function(){
       };
       console.log(tempData);
       tempParcel = tempParcel.replace(/\./g,'-');
-      survey.sendDataTOServer('http://apis.detroitmi.gov/photo_survey/survey/'+tempParcel+'/', newData);
+      survey.sendDataTOServer('https://apis.detroitmi.gov/photo_survey/survey/'+tempParcel+'/', newData);
     },
     sendDataTOServer: function (url, data, success) {
       data = JSON.stringify(data);
