@@ -5,8 +5,49 @@ var panelModule = (function(survey){
     'featureData'   : null,
     'displayType'   : '',
     'parcelData'    : null,
+    'parcelNumer'   : null,
     'tempHTML'      : [],
     'tempData'      : {'registrationNumbers':0,'totalNumbers':0},
+    'imageList'     : null,
+    updateImageList : function updateImageList(arr){
+      panel.imageList = arr;
+      console.log(panel.imageList);
+    },
+    getSurveyImageIDs: function(){
+      console.log( panel.getParcelNumber());
+      console.log( this.getParcelNumber());
+      console.log( this.parcelNumer);
+      let tempParcel = panel.getParcelNumber();
+      tempParcel = tempParcel.replace(/\./g,'_');
+      console.log(tempParcel);
+      $.getJSON("http://apis.detroitmi.gov/photo_survey/"+tempParcel+"/", function( data ) {
+        console.log(data);
+        if(data.images.length > 0){
+          document.getElementById('parcel-image').innerHTML ='<h5 style="text-align:center">LOADING IMAGE<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></h5>';
+          panel.updateImageList(data.images);
+          panel.getBase64Data();
+        }else{
+          console.log('no images found');
+        }
+      });
+    },
+    getBase64Data: function(){
+      console.log(panel.imageList);
+      let tempImageList = panel.imageList;
+      $.getJSON("http://apis.detroitmi.gov/photo_survey/image/" + tempImageList[0] + "/", function( data ) {
+        panel.loadImage(data);
+      });
+    },
+    loadImage: function(data){
+      document.getElementById('parcel-image').innerHTML ='<img src="data:image/jpeg;base64,' + data + '" alt="parcel image"></img>';
+    },
+    setParcelNumber : function(parcel) {
+      console.log(parcel);
+      panel.parcelNumer = parcel;
+    },
+    getParcelNumber : function(){
+      return panel.parcelNumer;
+    },
     createPanel     : function(type){
       this.setDisplayType(type);
       this.clearPanel();
@@ -87,6 +128,7 @@ var panelModule = (function(survey){
           document.querySelector('.parcel-data.owner').innerHTML = this.tempHTML[3];
           document.querySelector('.parcel-data.building').innerHTML = this.tempHTML[4];
           map.setFilter("parcel-fill-hover", ["==", "parcelno", currentURLParams.parcel]);
+          panel.getSurveyImageIDs();
           break;
         case this.displayType === 'neighborhood':
           document.querySelector('.info-container > .street-name').innerHTML = this.title;
@@ -125,35 +167,48 @@ var panelModule = (function(survey){
       document.querySelector('.parcel-data.owner').innerHTML = '';
       document.querySelector('.parcel-data.building').innerHTML = '';
       document.querySelector('.parcel-info.display-section').innerHTML = '';
+      document.getElementById('parcel-image').innerHTML = '';
     },
     switchParcelDataViews : function switchParcelDataViews(e){
       //cons.log(e.getAttribute('data-view'));
       switch (e.getAttribute('data-view')) {
         case 'owner':
-          var tempOwnerData = '';
-          tempOwnerData += '<article class="info-items"><span>OWNER CITY</span> ' + panel.parcelData.ownercity + '</article>';
-          tempOwnerData += '<article class="info-items"><span>OWNER NAME</span> ' + panel.parcelData.ownername1 + '</article>';
-          tempOwnerData += '<article class="info-items"><span>OWNER STATE</span> ' + panel.parcelData.ownerstate + '</article>';
-          tempOwnerData += '<article class="info-items"><span>OWNER ADDRESS</span> ' + panel.parcelData.ownerstreetaddr + '</article>';
-          tempOwnerData += '<article class="info-items"><span>OWNER ZIP</span> ' + panel.parcelData.ownerzip + '</article>';
-          document.querySelector('.parcel-info.display-section').innerHTML = tempOwnerData;
+          if(document.querySelector('.parcel-info.display-section').getAttribute('data-display-type') === 'owner'){
+            document.querySelector('.parcel-info.display-section').innerHTML = '';
+            document.querySelector('.parcel-info.display-section').setAttribute('data-display-type', '');
+          }else{
+            var tempOwnerData = '';
+            tempOwnerData += '<article class="info-items"><span>OWNER CITY</span> ' + panel.parcelData.ownercity + '</article>';
+            tempOwnerData += '<article class="info-items"><span>OWNER NAME</span> ' + panel.parcelData.ownername1 + '</article>';
+            tempOwnerData += '<article class="info-items"><span>OWNER STATE</span> ' + panel.parcelData.ownerstate + '</article>';
+            tempOwnerData += '<article class="info-items"><span>OWNER ADDRESS</span> ' + panel.parcelData.ownerstreetaddr + '</article>';
+            tempOwnerData += '<article class="info-items"><span>OWNER ZIP</span> ' + panel.parcelData.ownerzip + '</article>';
+            document.querySelector('.parcel-info.display-section').innerHTML = tempOwnerData;
+            document.querySelector('.parcel-info.display-section').setAttribute('data-display-type', 'owner');
+          }
           //cons.log(panel.parcelData);
           break;
         case 'building':
-          var tempBuldingData = '';
-          tempBuldingData += '<article class="info-items"><span>PARCEL NUMBER</span> ' + panel.parcelData.pnum + '</article>';
-          tempBuldingData += '<article class="info-items"><span>BASEMENT AREA</span> ' + panel.parcelData.resb_basementarea + '</article>';
-          tempBuldingData += '<article class="info-items"><span>BUILDING CLASS</span> ' + panel.parcelData.resb_bldgclass + '</article>';
-          tempBuldingData += '<article class="info-items"><span>CALCULATED VALUE</span> $' + parseInt(panel.parcelData.resb_calcvalue).toLocaleString() + '</article>';
-          tempBuldingData += '<article class="info-items"><span>EXTERIOR</span> ' + panel.parcelData.resb_exterior + '</article>';
-          tempBuldingData += '<article class="info-items"><span>NUMBER OF FIREPLACES</span> ' + panel.parcelData.resb_fireplaces + '</article>';
-          tempBuldingData += '<article class="info-items"><span>FLOOR AREA</span> ' + panel.parcelData.resb_floorarea.toLocaleString() + '</article>';
-          tempBuldingData += '<article class="info-items"><span>GARAGE AREA</span> ' + panel.parcelData.resb_garagearea.toLocaleString() + '</article>';
-          tempBuldingData += '<article class="info-items"><span>GARAGE TYPE</span> ' + panel.parcelData.resb_gartype + '</article>';
-          tempBuldingData += '<article class="info-items"><span>GROUND AREA</span> ' + panel.parcelData.resb_groundarea.toLocaleString() + '</article>';
-          tempBuldingData += '<article class="info-items"><span>HALF BATHS</span> ' + panel.parcelData.resb_halfbaths + '</article>';
-          tempBuldingData += '<article class="info-items"><span>NUMBER OF BEDROOMS</span> ' + panel.parcelData.resb_nbed + '</article>';
-          document.querySelector('.parcel-info.display-section').innerHTML = tempBuldingData;
+          if(document.querySelector('.parcel-info.display-section').getAttribute('data-display-type')){
+            document.querySelector('.parcel-info.display-section').innerHTML = '';
+            document.querySelector('.parcel-info.display-section').setAttribute('data-display-type', '');
+          }else{
+            var tempBuldingData = '';
+            tempBuldingData += '<article class="info-items"><span>PARCEL NUMBER</span> ' + panel.parcelData.pnum + '</article>';
+            tempBuldingData += '<article class="info-items"><span>BASEMENT AREA</span> ' + panel.parcelData.resb_basementarea + '</article>';
+            tempBuldingData += '<article class="info-items"><span>BUILDING CLASS</span> ' + panel.parcelData.resb_bldgclass + '</article>';
+            tempBuldingData += '<article class="info-items"><span>CALCULATED VALUE</span> $' + parseInt(panel.parcelData.resb_calcvalue).toLocaleString() + '</article>';
+            tempBuldingData += '<article class="info-items"><span>EXTERIOR</span> ' + panel.parcelData.resb_exterior + '</article>';
+            tempBuldingData += '<article class="info-items"><span>NUMBER OF FIREPLACES</span> ' + panel.parcelData.resb_fireplaces + '</article>';
+            tempBuldingData += '<article class="info-items"><span>FLOOR AREA</span> ' + panel.parcelData.resb_floorarea.toLocaleString() + '</article>';
+            tempBuldingData += '<article class="info-items"><span>GARAGE AREA</span> ' + panel.parcelData.resb_garagearea.toLocaleString() + '</article>';
+            tempBuldingData += '<article class="info-items"><span>GARAGE TYPE</span> ' + panel.parcelData.resb_gartype + '</article>';
+            tempBuldingData += '<article class="info-items"><span>GROUND AREA</span> ' + panel.parcelData.resb_groundarea.toLocaleString() + '</article>';
+            tempBuldingData += '<article class="info-items"><span>HALF BATHS</span> ' + panel.parcelData.resb_halfbaths + '</article>';
+            tempBuldingData += '<article class="info-items"><span>NUMBER OF BEDROOMS</span> ' + panel.parcelData.resb_nbed + '</article>';
+            document.querySelector('.parcel-info.display-section').innerHTML = tempBuldingData;
+            document.querySelector('.parcel-info.display-section').setAttribute('data-display-type', 'building');
+          }
           //cons.log(panel.parcelData);
           break;
         default:
@@ -182,6 +237,7 @@ var panelModule = (function(survey){
           break;
         default:
           console.log(decodeURI(currentURLParams.parcel));
+          panel.setParcelNumber(decodeURI(currentURLParams.parcel));
           panel.setTempFeatureData({'properties':{'parcelno':currentURLParams.parcel}});
           panel.createPanel('parcel');
       }
@@ -197,6 +253,7 @@ var panelModule = (function(survey){
           console.log('loading parcel data');
           console.log(this.displayType);
           console.log(this.featureData.properties.parcelno);
+          panel.setParcelNumber(this.featureData.properties.parcelno);
           $.getJSON("http://apis.detroitmi.gov/assessments/parcel/"+this.featureData.properties.parcelno.replace(/\./g,'_')+"/", function( parcel ) {
             panel.setDisplayType('parcel');
             console.log(parcel);

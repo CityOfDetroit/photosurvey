@@ -43,7 +43,7 @@ var mapSectionClickModule = (function(){
           console.log('survey going no click enable');
         }else{
           mapPanel.featureData = parcelFeatures[0];
-          updateURLParams([16,e.lngLat.lng, e.lngLat.lat, parcelFeatures[0].properties.parcelno,'','']);
+          updateURLParams([17,e.lngLat.lng, e.lngLat.lat, parcelFeatures[0].properties.parcelno,'','']);
           mapPanel.createPanel('parcel');
         }
         break;

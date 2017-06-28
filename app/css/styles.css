@@ -296,7 +296,9 @@ main {
   margin: 0; }
 
 .question-container > .answers > .radio {
-  margin-right: 1em; }
+  width: 100%;
+  display: block;
+  margin-bottom: .5em; }
 
 .question-container > .answers > .checkbox {
   width: 100%;
@@ -304,6 +306,9 @@ main {
 
 .question-container > .answers {
   padding-top: 1em; }
+
+#parcel-image > img {
+  width: 100%; }
 
 .survey-buttons {
   padding: 1em; }

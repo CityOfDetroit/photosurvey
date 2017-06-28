@@ -7,229 +7,429 @@ var surveyModule = (function(){
     },
     pastSurveys : false,
     surveyIndex : 0,
-    imageList: null,
     surveyCurrentAddress: null,
     surveyPossibleAddress: null,
     surveyPostData : {
-      'survey_id'   : 'default',
+      'survey_id'   : 'default_combined',
       'user_id'     : 'xyz',
       'answers'     : [
         {
-          "question_id": "parcel_id",
+          "question_id": "is_structure_on_site",
           "answer": null
         },
         {
-          "question_id": "needs_intervention",
+          "question_id": "is_structure_occupied",
           "answer": null
         },
         {
-          "question_id": "lot_or_structure",
+          "question_id": "site_use_type",
           "answer": null
         },
         {
-          "question_id": "structure_with_blight",
+          "question_id": "num_residential_units",
           "answer": null
         },
         {
-          "question_id": "elements_of_structure",
+          "question_id": "residence_type",
           "answer": null
         },
         {
-          "question_id": "elements_of_lot",
+          "question_id": "commercial_occupants_type",
+          "answer": null
+        },
+        {
+          "question_id": "industrial_occupants_type",
+          "answer": null
+        },
+        {
+          "question_id": "institutional_occupants_type",
+          "answer": null
+        },
+        {
+          "question_id": "structure_condition",
+          "answer": null
+        },
+        {
+          "question_id": "is_structure_fire_damaged",
+          "answer": null
+        },
+        {
+          "question_id": "fire_damage_level",
+          "answer": null
+        },
+        {
+          "question_id": "is_structure_secure",
+          "answer": null
+        },
+        {
+          "question_id": "site_use",
+          "answer": null
+        },
+        {
+          "question_id": "is_lot_maintained",
+          "answer": null
+        },
+        {
+          "question_id": "is_dumping_on_site",
+          "answer": null
+        },
+        {
+          "question_id": "blighted_lot_elements",
+          "answer": null
+        },
+        {
+          "question_id": "blighted_structure_elements",
           "answer": null
         }
       ]
     },
     questionsList: [
-      'Does this parcel need intervention?',
-      'Is the blighted parcel a lot or structure?',
-      'Structure with Blight',
-      'Elements of the Blighted Structure (select all that apply)',
-      'Elements of the Blighted Lot (select all that apply)'
+      'Is there a structure on the site?',
+      'Is the structure occupied?',
+      'What is this site used for?',
+      'How many residential units?',
+      'What type of residences?',
+      'What type of commercial occupant(s)?',
+      'What type of industrial occupant(s)?',
+      'What type of institutional occupant(s)?',
+      'What is the condition of the structure?',
+      'Is the structure fire damaged?',
+      'What is the level of fire damage?',
+      'Is the building secure or open to trespass?',
+      'What is the site used for?',
+      'Is the lot maintained?',
+      'Is there dumping on the site?',
+      'Elements of the Blighted Lot  (select all that apply)',
+      'Elements of the Blighted Structure (select all that apply)'
     ],
     answerList: [
       [
         {
-          text: 'No',
-          value : 'n',
-          nextQuestionKey: null
-        },
-        {
-          text: 'Yes',
+          text: '<strong>Yes:</strong> A structure is a permanent building located on the site. This includes houses, garages, buildings - anything built on a foundation.',
           value : 'y',
           nextQuestionKey: 1
+        },
+        {
+          text: '<strong>No:</strong> If the site is empty or has temporary structures, like trailers, temporary sheds, or mobile homes, then it does not have a structure on site. ',
+          value : 'n',
+          nextQuestionKey: 12
         }
       ],
       [
         {
-          text: 'Vacant Lot with Blight',
-          value : 'lot',
-          nextQuestionKey: 4,
+          text: '<strong>Occupied:</strong> The structure shows visible activity and consistent use or maintenance. Common characteristics are: porch furniture, a well-kept lawn, good landscaping, fences, cars in the driveway, a maintained garden, or a play area.',
+          value : 'a',
+          nextQuestionKey: 2,
         },
         {
-          text: 'Structure with Blight',
-          value : 'structure',
+          text: '<strong>Unoccupied:</strong> Common characteristics are: neglected facades, eviction notices, empty interiors, substantial physical or structural damages, extensive security measures, uncut or tall grass, weeds, scrub trees, trash or debris accumulated over time, or accumulated flyers on the porch or door.',
+          value : 'b',
+          nextQuestionKey: 2,
+        },
+        {
+          text: '<strong>Partially occupied:</strong> One or more units in a multi-unit dwelling are occupied, while others are clearly vacant.',
+          value : 'c',
+          nextQuestionKey: 2,
+        },
+        {
+          text: '<strong>Possibly Unoccupied:</strong> The property displays characteristics from both categories above, making it difficult to assess whether there is consistent use or maintenance.',
+          value : 'd',
           nextQuestionKey: 2,
         }
       ],
       [
         {
-          text: 'Occupied/in use',
+          text: '<strong>Residential:</strong> Includes single-family homes, duplexes, apartment buildings, senior living facilities, condominiums, and row houses.',
           value : 'a',
           nextQuestionKey: 3,
         },
         {
-          text: 'Partially occupied/maybe in use',
+          text: '<strong>Commercial:</strong> Includes properties used for retail, office, entertainment, hotels, parking, and other services.',
+          value : 'b',
+          nextQuestionKey: 5,
+        },
+        {
+          text: '<strong>Mixed-use Residential / Commercial:</strong> Includes multi-level structures where the ground level supports commercial uses like retail, while the top levels support residential uses like apartments, condominiums, lofts, etc.',
+          value : 'c',
+          nextQuestionKey: 5,
+        },
+        {
+          text: '<strong>Industrial:</strong> Includes properties used for manufacturing, storage areas, warehousing, junk yards, landfill operations, and waste disposal sites.',
+          value : 'd',
+          nextQuestionKey: 6,
+        },
+        {
+          text: '<strong>Institutional:</strong> Includes all public and religious buildings, including churches, schools, government offices, libraries, permanent park structures, and hospitals.',
+          value : 'e',
+          nextQuestionKey: 7,
+        },
+        {
+          text: '<strong>Unknown:</strong> The use of the property cannot be determined from looking at the outside alone.',
+          value : 'e',
+          nextQuestionKey: 3,
+        }
+      ],
+      [
+        {
+          text: '<strong>Garage or Shed:</strong> A detached garage or shed which is the only structure on the parcel.',
+          value : 'a',
+          nextQuestionKey: 4,
+        },
+        {
+          text: '<strong>Single Family:</strong> A house designed for occupancy for one family and has only one address number.',
           value : 'b',
           nextQuestionKey: 4,
         },
         {
-          text: 'Not occupied/not in use',
+          text: '<strong>Multi-Family:</strong> A single building designed for occupancy for one to three families with multiple addresses.',
           value : 'c',
-          nextQuestionKey: 3,
+          nextQuestionKey: 4,
+        },
+        {
+          text: '<strong>Apartments:</strong> Individual or multiple buildings designed for occupancy by 4 or more families.',
+          value : 'd',
+          nextQuestionKey: 4,
         }
       ],
       [
         {
-          text: 'Needs Demolition',
+          text: '<strong>Single Family:</strong> A house designed for occupancy for one family and has only one address number.',
           value : 'a',
-          nextQuestionKey: null,
+          nextQuestionKey: 5,
         },
         {
-          text: 'Needs Board Up',
+          text: '<strong>Multi-Family:</strong> A single building designed for occupancy for one to three families with multiple addresses.',
           value : 'b',
-          nextQuestionKey: null,
+          nextQuestionKey: 5,
         },
         {
-          text: 'Structure is accessible',
+          text: '<strong>Apartments:</strong> Individual or multiple buildings designed for occupancy by 4 or more families.',
           value : 'c',
-          nextQuestionKey: null,
+          nextQuestionKey: 5,
+        }
+      ],
+      [
+        {
+          text: '<strong>Restaurant / Bar:</strong> Stand-alone eateries and drinking establishments',
+          value : 'a',
+          nextQuestionKey: 8,
         },
         {
-          text: 'Has an active billboard and is a vacant blighted structure',
+          text: '<strong>Grocery:</strong> Stand-alone stores where people can buy food. Sale of food may not be the primary purpose of the business. Includes liquor stores.',
+          value : 'b',
+          nextQuestionKey: 8,
+        },
+        {
+          text: '<strong>Retail:</strong> Stores that sell items to the general public.',
+          value : 'c',
+          nextQuestionKey: 8,
+        },
+        {
+          text: '<strong>Service:</strong> Businesses that provide a service to the general public, including banks, hair salons, tattoo parlors, auto repair shops',
           value : 'd',
-          nextQuestionKey: null,
+          nextQuestionKey: 8,
         },
         {
-          text: 'Has an inactive billboard and is a vacant blighted structure',
+          text: '<strong>Offices:</strong> Businesses that provide services or office spaces for individual or multiple tenants.',
           value : 'e',
-          nextQuestionKey: null,
+          nextQuestionKey: 8,
         },
         {
-          text: 'Blighted signs/awnings',
+          text: '<strong>Entertainment:</strong> Structures whose sole purpose is to provide entertainment.',
           value : 'f',
-          nextQuestionKey: null,
+          nextQuestionKey: 8,
         },
         {
-          text: 'Graffiti, posters on poles or walls, etc.',
+          text: '<strong>Multi-occupant:</strong> A building housing multiple commercial business, but no residential units. Strip malls.',
           value : 'g',
-          nextQuestionKey: null,
+          nextQuestionKey: 8,
         },
         {
-          text: 'Overgrown grass, brush, and trees',
+          text: '<strong>Other:</strong> For when you’re unsure about what the commercial building is being used for.',
+          value : 'g',
+          nextQuestionKey: 8,
+        }
+      ],
+      [
+        {
+          text: '<strong>Industrial:</strong> Manufacturing and production plants that generally don’t do business with the public.',
+          value : 'a',
+          nextQuestionKey: 8,
+        },
+        {
+          text: '<strong>Warehouses:</strong> Buildings that store goods, but don’t produce them. Indicators include large loading docks and signage indicating warehouse use. May be multi-story.',
+          value : 'b',
+          nextQuestionKey: 8,
+        },
+        {
+          text: '<strong>Multi-Occupant:</strong> Multi-occupant industrial buildings have multiple tenants or companies, and are sometimes located in industrial parks.',
+          value : 'c',
+          nextQuestionKey: 8,
+        },
+        {
+          text: '<strong>Other:</strong> For when you’re unsure about what the industrial building is being used for.',
+          value : 'd',
+          nextQuestionKey: 8,
+        }
+      ],
+      [
+        {
+          text: '<strong>Schools:</strong> Any building whose primary purpose is that of education.',
+          value : 'a',
+          nextQuestionKey: 8,
+        },
+        {
+          text: '<strong>Religious:</strong> Any building whose primary purpose is religious in nature. This includes a wide gamut of buildings from cathedrals down to storefronts. Primarily places of worship, but also buildings where religious services are offered.',
+          value : 'b',
+          nextQuestionKey: 8,
+        },
+        {
+          text: '<strong>Public Safety:</strong> Primarily police and fire stations. Does not include private security firms.',
+          value : 'c',
+          nextQuestionKey: 8,
+        },
+        {
+          text: '<strong>Health:</strong> Hospitals, health centers, medical clinics. Any place where medical services are offered, including doctors’ offices.',
+          value : 'd',
+          nextQuestionKey: 8,
+        },
+        {
+          text: '<strong>Recreation:</strong> Different from a park in that it has a permanent structure on it for the purpose of recreation.',
+          value : 'e',
+          nextQuestionKey: 8,
+        },
+        {
+          text: '<strong>Government:</strong> Government buildings are offices through which the local, state, and federal government operate out of. Includes libraries.',
+          value : 'f',
+          nextQuestionKey: 8,
+        },
+        {
+          text: '<strong>Non Profit / Charity:</strong> Organizations providing services to the needy, including soup kitchens, homeless shelters',
+          value : 'g',
+          nextQuestionKey: 8,
+        },
+        {
+          text: '<strong>Other:</strong> For when you’re unsure about what the institutional building is being used for.',
           value : 'h',
-          nextQuestionKey: null,
+          nextQuestionKey: 8,
+        }
+      ],
+      [
+        {
+          text: '<strong>Good:</strong> No obvious repairs needed.',
+          value : 'a',
+          nextQuestionKey: 9,
         },
         {
-          text: 'Cement piles',
-          value : 'i',
-          nextQuestionKey: null,
+          text: '<strong>Fair:</strong> Needs minor repairs. Windows and doors intact, but roof may be missing shingles, exterior elements may be sagging, paint / siding missing, graffiti.',
+          value : 'b',
+          nextQuestionKey: 9,
         },
         {
-          text: 'Large dirt piles',
-          value : 'j',
-          nextQuestionKey: null,
+          text: '<strong>Poor:</strong> Needs major repairs. Windows and doors are broken or boarded up. Light fire damage that can be repaired. Non-load-bearing elements like awnings, porches collapsed. Holes in roof.',
+          value : 'c',
+          nextQuestionKey: 9,
         },
         {
-          text: 'Tires illegally dumped',
-          value : 'k',
-          nextQuestionKey: null,
+          text: '<strong>Suggest Demolition:</strong> No longer shaped like a building. Damaged beyond practical repair or renovation. Structural damage including collapse of roof, walls, foundation. Uninhabitable.',
+          value : 'd',
+          nextQuestionKey: 9,
+        }
+      ],
+      [
+        {
+          text: '<strong>Yes:</strong> Indications of fire in or around the structure that caused visible damage, from as small as melted siding to buildings that have burned down to the ground.',
+          value : 'y',
+          nextQuestionKey: 10,
         },
         {
-          text: 'Broken/abandoned fences',
-          value : 'l',
-          nextQuestionKey: null,
-        },
-        {
-          text: 'Abandoned cars (2 or less)',
-          value : 'm',
-          nextQuestionKey: null,
-        },
-        {
-          text: 'Abandoned cars (3 or more)',
+          text: '<strong>No</strong> ',
           value : 'n',
-          nextQuestionKey: null,
-        },
-        {
-          text: 'other',
-          value : 'o',
-          nextQuestionKey: null,
+          nextQuestionKey: 11,
         }
       ],
       [
         {
-          text: 'Has an active billboard and is a vacant blighted structure',
+          text: '<strong>Minor:</strong> Visible damage to the building that is superficial or repairable, and does not render the building uninhabitable. Includes soot marks around doorways and windows.',
           value : 'a',
-          nextQuestionKey: null,
+          nextQuestionKey: 11,
         },
         {
-          text: 'Has an inactive billboard and is a vacant blighted structure',
+          text: '<strong>Major:</strong> Significant damage to the building that would be costly to repair and makes it uninhabitable. Major may include holes in the roof, but once there is any sort of structural collapse, the damage level is considered collapsed.',
           value : 'b',
-          nextQuestionKey: null,
+          nextQuestionKey: 11,
         },
         {
-          text: 'Lot is accessible',
+          text: '<strong>Collapsed:</strong> Fire that has caused partial or total structural collapse, making it no longer building-shaped. This includes buildings that have burned down to the foundation. Walls may still be standing, but parts or all of the roof have caved in.',
           value : 'c',
-          nextQuestionKey: null,
+          nextQuestionKey: 11,
+        }
+      ],
+      [
+        {
+          text: '<strong>Secured:</strong> A building is secured when all windows or doors are intact or secured. This includes occupied buildings with original windows / doors, and buildings that may be vacant but are not open to trespass.',
+          value : 'y',
+          nextQuestionKey: 14,
         },
         {
-          text: 'Blighted signs/awnings',
+          text: '<strong>Open to Trespass:</strong> If a building has missing windows, doors or is otherwise open and accessible to scrappers, squatters, or vandals, it is open to trespass.',
+          value : 'n',
+          nextQuestionKey: 14,
+        }
+      ],
+      [
+        {
+          text: '<strong>Vacant Lot:</strong> A lot that is not being used.',
+          value : 'a',
+          nextQuestionKey: 13,
+        },
+        {
+          text: '<strong>Parking Lot:</strong> Lot used for parking, can be paved or unpaved. Does not include cars on lawns.',
+          value : 'b',
+          nextQuestionKey: 13,
+        },
+        {
+          text: '<strogn>Park:</strong> A lot that is clearly designated or has some permanent indicator of park use such as playground equipment and trails.',
+          value : 'c',
+          nextQuestionKey: 13,
+        },
+        {
+          text: '<strong>Garden:</strong> Land being used for agricultural purposes, includes personal gardens and larger farms.',
           value : 'd',
-          nextQuestionKey: null,
+          nextQuestionKey: 13,
         },
         {
-          text: 'Graffiti, posters on poles or walls, etc.',
+          text: '<strong>Other:</strong> For when you’re unsure about what the lot is being used for.',
           value : 'e',
-          nextQuestionKey: null,
+          nextQuestionKey: 13,
         },
         {
-          text: 'Overgrown grass, brush, and trees',
+          text: '<strong>Attached Lot:</strong> A lot adjacent to or in between occupied houses that is clearly maintained or used as an extension of an existing property. Attached Lots are not considered vacant lots because they are in use.',
           value : 'f',
+          nextQuestionKey: 13,
+        }
+      ],
+      [
+        {
+          text: '<strong>Yes:</strong> A lot is maintained when the lot shows sign of care and maintenance, regardless of what is physically on the lot. Grassy lots are mowed with some regularity and paved lots show signs of consistent care.',
+          value : 'y',
+          nextQuestionKey: 14,
+        },
+        {
+          text: '<strong>No:</strong> Characteristics of an unmaintained lot include tall grass, overgrown trees or bushes, weeds in the cracks of pavement, and so on.',
+          value : 'n',
+          nextQuestionKey: 14,
+        }
+      ],
+      [
+        {
+          text: '<strong>Yes:</strong> A building or vacant lot is considered to have dumping when debris has been purposely left or placed on the property. This does not include litter or debris from a recent fire or ongoing demolition',
+          value : 'y',
           nextQuestionKey: null,
         },
         {
-          text: 'Cement piles',
-          value : 'g',
-          nextQuestionKey: null,
-        },
-        {
-          text: 'Large dirt piles',
-          value : 'h',
-          nextQuestionKey: null,
-        },
-        {
-          text: 'Tires illegally dumped',
-          value : 'i',
-          nextQuestionKey: null,
-        },
-        {
-          text: 'Broken/abandoned fences',
-          value : 'j',
-          nextQuestionKey: null,
-        },
-        {
-          text: 'Abandoned cars (2 or less)',
-          value : 'k',
-          nextQuestionKey: null,
-        },
-        {
-          text: 'Abandoned cars (3 or more)',
-          value : 'l',
-          nextQuestionKey: null,
-        },
-        {
-          text: 'other',
-          value : 'm',
+          text: '<strong>No:</strong>',
+          value : 'n',
           nextQuestionKey: null,
         }
       ]
@@ -365,6 +565,8 @@ var surveyModule = (function(){
       console.log(getQueryVariable('lat'));
       console.log(getQueryVariable('lng'));
       console.log(getQueryVariable('survey'));
+      survey.setSurveyIndex(0);
+      this.clearAnswersButtons();
       if(getQueryVariable('survey') === 'on'){
         this.loadSurveyWithinCorridor();
       }else{
@@ -380,6 +582,8 @@ var surveyModule = (function(){
       }
     },
     startNewSurvey: function(){
+      survey.setSurveyIndex(0);
+      this.clearAnswersButtons();
       survey.setPastSurveys(false);
       survey.loadHTML();
     },
@@ -427,7 +631,6 @@ var surveyModule = (function(){
             console.log(cleanParcelID);
             switch (true) {
               case tempParcel === null:
-                survey.setPostData(0,parcel.candidates[0].attributes.User_fld);
                 $.getJSON('http://apis.detroitmi.gov/photo_survey/count/'+cleanParcelID+'/' , function( surveys ) {
                   console.log('new parcel');
                   (surveys.count > 0) ? survey.setPastSurveys(true) : survey.setPastSurveys(false);
@@ -437,7 +640,6 @@ var surveyModule = (function(){
               case getQueryVariable('survey') === 'on' && tempParcel !== parcel.candidates[0].attributes.User_fld:
                 console.log('clear survey');
                 survey.clearSurvey();
-                survey.setPostData(0,parcel.candidates[0].attributes.User_fld);
                 $.getJSON('http://apis.detroitmi.gov/photo_survey/count/'+cleanParcelID+'/' , function( surveys ) {
                   console.log(surveys.count);
                   (surveys.count > 0) ? survey.setPastSurveys(true) : survey.setPastSurveys(false);
@@ -471,54 +673,15 @@ var surveyModule = (function(){
       if(itemsChecked > 0){
         console.log('answers was selected');
         console.log(survey.getSurveyIndex());
-        switch (survey.getSurveyIndex()) {
-          case 0:
-            console.log(selectedAnswers);
-            console.log(typeof(selectedAnswers[0].getAttribute('data-next-key')));
-            survey.setPostData(1, selectedAnswers[0].value);
-            if(selectedAnswers[0].getAttribute('data-next-key') === 'null'){
-              survey.submitSurvey();
-            }else{
-              survey.setSurveyIndex(parseInt(selectedAnswers[0].getAttribute('data-next-key')));
-              console.log(survey.getSurveyIndex());
-              survey.loadHTML();
-            }
-            break;
-          case 1:
-            console.log(selectedAnswers);
-            survey.setPostData(2, selectedAnswers[0].value);
-            survey.setSurveyIndex(parseInt(selectedAnswers[0].getAttribute('data-next-key')));
-            console.log(survey.getSurveyIndex());
-            survey.loadHTML();
-            break;
-          case 2:
-            console.log(selectedAnswers);
-            survey.setPostData(3, selectedAnswers[0].value);
-            survey.setSurveyIndex(parseInt(selectedAnswers[0].getAttribute('data-next-key')));
-            console.log(survey.getSurveyIndex());
-            survey.loadHTML();
-            break;
-          case 3:
-            console.log(selectedAnswers);
-            survey.setPostData(4, selectedAnswers);
-            if(selectedAnswers[0].getAttribute('data-next-key') === 'null'){
-              survey.submitSurvey();
-            }else{
-              survey.setSurveyIndex(parseInt(selectedAnswers[0].getAttribute('data-next-key')));
-              console.log(survey.getSurveyIndex());
-              survey.loadHTML();
-            }
-            break;
-          default:
-            console.log(selectedAnswers);
-            survey.setPostData(5, selectedAnswers);
-            if(selectedAnswers[0].getAttribute('data-next-key') === 'null'){
-              survey.submitSurvey();
-            }else{
-              survey.setSurveyIndex(parseInt(selectedAnswers[0].getAttribute('data-next-key')));
-              console.log(survey.getSurveyIndex());
-              survey.loadHTML();
-            }
+        console.log(selectedAnswers);
+        console.log(typeof(selectedAnswers[0].getAttribute('data-next-key')));
+        survey.setPostData(survey.getSurveyIndex(), selectedAnswers[0].value);
+        if(selectedAnswers[0].getAttribute('data-next-key') === 'null'){
+          survey.submitSurvey();
+        }else{
+          survey.setSurveyIndex(parseInt(selectedAnswers[0].getAttribute('data-next-key')));
+          console.log(survey.getSurveyIndex());
+          survey.loadHTML();
         }
       }else{
         console.log('answer was not selected');
@@ -547,7 +710,7 @@ var surveyModule = (function(){
         (item.answer !== null) ? cleanAnswer.push(item) : 0;
       });
       let newData =  {
-        'survey_id'   : 'default',
+        'survey_id'   : 'default_combined',
         'user_id'     : 'xyz',
         'answers'     : cleanAnswer
       };
@@ -587,10 +750,10 @@ var surveyModule = (function(){
       console.log(this.answerList[tempIndex]);
       for (var i = 0; i < this.answerList[tempIndex].length; i++) {
         switch (tempIndex) {
-          case 3:
+          case 15:
             tempHTML += '<label class="checkbox"><input class="answer-options" type="checkbox" value="'+ this.answerList[tempIndex][i].value +'" data-next-key="'+ this.answerList[tempIndex][i].nextQuestionKey +'"/>'+this.answerList[tempIndex][i].text+'</label>';
             break;
-          case 4:
+          case 16:
             tempHTML += '<label class="checkbox"><input class="answer-options" type="checkbox" value="'+ this.answerList[tempIndex][i].value +'" data-next-key="'+ this.answerList[tempIndex][i].nextQuestionKey +'"/>'+this.answerList[tempIndex][i].text+'</label>';
             break;
           default:
@@ -600,26 +763,6 @@ var surveyModule = (function(){
       tempHTML += "</article>";
       console.log(tempHTML);
       return tempHTML;
-    },
-    updateImageList : function updateImageList(arr){
-      this.imageList = arr;
-      console.log(this.imageList);
-    },
-    getSurveyImageIDs: function(){
-      $.getJSON("http://apis.detroitmi.gov/photo_survey/02006213-7/", function( data ) {
-        console.log(data);
-        survey.updateImageList(data.images);
-        survey.getBase64Data();
-      });
-    },
-    getBase64Data: function(){
-      let tempImageList = this.imageList;
-      $.getJSON("http://apis.detroitmi.gov/photo_survey/image/"+tempImageList[0]+"/", function( data ) {
-        survey.loadImage(data);
-      });
-    },
-    loadImage: function(data){
-      document.getElementById('base-64').src = "data:image/jpeg;base64," + data;
     }
   };
   return survey;
