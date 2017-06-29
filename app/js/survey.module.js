@@ -728,7 +728,7 @@ var surveyModule = (function(){
           dataType:'json',
           success: function(response){
             document.querySelector('.survey-buttons').innerHTML = '<button onclick="survey.loadAnotherSurvey()">START OTHER SURVEY</button>';
-            document.querySelector('.question-container').innerHTML = '<h5>Your surveys has been saved.</h5>'
+            document.querySelector('.question-container').innerHTML = '<h5>Your survey has been saved.</h5>'
           },
           error: function(error){
               console.log("Something went wrong", error);
