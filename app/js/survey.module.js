@@ -567,13 +567,17 @@ var surveyModule = (function(){
     loadSurveyWithinCorridor: function(){
      let currentParcels = survey.getSurveyParcelsSet();
      let nextParcel = null;
-     currentParcels.forEach(function(item){
-       if(item.attributes.PARCELNO = survey.getSurveyNextParcel()){
-         nextParcel = item;
-         return 0;
-       }
-     });
-     var llb = new mapboxgl.LngLatBounds(nextParcel.geometry.rings[0]);
+     if(survey.getSurveyNextParcel() !== null){
+       currentParcels.forEach(function(item){
+         if(item.attributes.PARCELNO = survey.getSurveyNextParcel()){
+           nextParcel = item;
+           return 0;
+         }
+       });
+     }else{
+       nextParcel = currentParcels[Math.floor(Math.random()*currentParcels.length)];
+     }
+     let llb = new mapboxgl.LngLatBounds(nextParcel.geometry.rings[0]);
      var center = llb.getCenter();
      console.log(center);
      mly.moveCloseTo(center.lat, center.lng)
