@@ -21,7 +21,7 @@ var panelModule = function (survey) {
       let tempParcel = panel.getParcelNumber();
       tempParcel = tempParcel.replace(/\./g, '_');
       console.log(tempParcel);
-      $.getJSON("http://apis.detroitmi.gov/photo_survey/" + tempParcel + "/", function (data) {
+      $.getJSON("https://apis.detroitmi.gov/photo_survey/" + tempParcel + "/", function (data) {
         console.log(data);
         if (data.images.length > 0) {
           document.getElementById('parcel-image').innerHTML = '<h5 style="text-align:center">LOADING IMAGE<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></h5>';
@@ -35,7 +35,7 @@ var panelModule = function (survey) {
     getBase64Data: function () {
       console.log(panel.imageList);
       let tempImageList = panel.imageList;
-      $.getJSON("http://apis.detroitmi.gov/photo_survey/image/" + tempImageList[0] + "/", function (data) {
+      $.getJSON("https://apis.detroitmi.gov/photo_survey/image/" + tempImageList[0] + "/", function (data) {
         panel.loadImage(data);
       });
     },
@@ -220,7 +220,7 @@ var panelModule = function (survey) {
       switch (true) {
         case currentURLParams.district !== '':
           console.log(currentURLParams.district.split('%20')[1]);
-          $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/NeighborhoodsApp/council_district/MapServer/1/query?where=&text=District+" + currentURLParams.district.split('%20')[1] + "&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function (data) {
+          $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/NeighborhoodsApp/council_district/MapServer/1/query?where=&text=District+" + currentURLParams.district.split('%20')[1] + "&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function (data) {
             console.log(data);
             panel.setTempFeatureData(data.features[0]);
             console.log(panel.getTempFeatureData());
@@ -229,7 +229,7 @@ var panelModule = function (survey) {
           break;
         case currentURLParams.neighborhood !== '':
           console.log(decodeURI(currentURLParams.neighborhood));
-          $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/NeighborhoodsApp/Neighborhoods/MapServer/1/query?where=&text=" + decodeURI(currentURLParams.neighborhood) + "&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function (data) {
+          $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/NeighborhoodsApp/Neighborhoods/MapServer/1/query?where=&text=" + decodeURI(currentURLParams.neighborhood) + "&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function (data) {
             console.log(data);
             panel.setTempFeatureData(data.features[0]);
             console.log(panel.getTempFeatureData());
@@ -255,7 +255,7 @@ var panelModule = function (survey) {
           console.log(this.displayType);
           console.log(this.featureData.properties.parcelno);
           panel.setParcelNumber(this.featureData.properties.parcelno);
-          $.getJSON("http://apis.detroitmi.gov/assessments/parcel/" + this.featureData.properties.parcelno.replace(/\./g, '_') + "/", function (parcel) {
+          $.getJSON("https://apis.detroitmi.gov/assessments/parcel/" + this.featureData.properties.parcelno.replace(/\./g, '_') + "/", function (parcel) {
             panel.setDisplayType('parcel');
             console.log(parcel);
             console.log(panel.getDisplayType());
@@ -275,7 +275,7 @@ var panelModule = function (survey) {
           this.setPanelTitle(simplifiedNeighborhood.properties.name);
           var arcNeighborhoodPolygon = Terraformer.ArcGIS.convert(simplifiedNeighborhood.geometry);
           // console.log(arcPolygon);
-          $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=" + encodeURI(JSON.stringify(arcNeighborhoodPolygon)) + "&geometryType=esriGeometryPolygon&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=false&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=pjson", function (data) {
+          $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=" + encodeURI(JSON.stringify(arcNeighborhoodPolygon)) + "&geometryType=esriGeometryPolygon&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=false&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=pjson", function (data) {
             panel.setDisplayType('neighborhood');
             console.log(data);
             console.log(panel.getTempData());
@@ -302,7 +302,7 @@ var panelModule = function (survey) {
           this.setPanelTitle(simplifiedDistrict.properties.name);
           var arcDistrictPolygon = Terraformer.ArcGIS.convert(simplifiedDistrict.geometry);
           // console.log(arcPolygon);
-          $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=" + encodeURI(JSON.stringify(arcDistrictPolygon)) + "&geometryType=esriGeometryPolygon&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=false&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=pjson", function (data) {
+          $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=" + encodeURI(JSON.stringify(arcDistrictPolygon)) + "&geometryType=esriGeometryPolygon&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=false&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=pjson", function (data) {
             panel.setDisplayType('district');
             console.log(panel.getTempData());
             var localDistrictData = panel.getTempData();
@@ -324,7 +324,7 @@ var panelModule = function (survey) {
           this.setTempHTML('clear');
           this.setPanelTitle('CITY OF DETROIT');
           console.log(this.tempData);
-          $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=false&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=pjson", function (data) {
+          $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=false&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=pjson", function (data) {
             panel.setDisplayType('city');
             console.log(data);
             console.log(panel.getTempData());

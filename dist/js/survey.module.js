@@ -413,13 +413,13 @@ var surveyModule = function () {
         default:
 
       }
-      $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/DoIT/Corridor_Boundaries/MapServer/0/query?where=Corridor%3D%27" + corridorName + "%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function (corridor) {
+      $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Corridor_Boundaries/MapServer/0/query?where=Corridor%3D%27" + corridorName + "%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function (corridor) {
         console.log(corridor);
         var simplifiedCorridor = turf.simplify(corridor.features[0], 0.003, false);
         console.log(simplifiedCorridor);
         var arcCorridorPolygon = Terraformer.ArcGIS.convert(simplifiedCorridor.geometry);
         console.log(arcCorridorPolygon);
-        $.getJSON("http://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=" + encodeURI(JSON.stringify(arcCorridorPolygon)) + "&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=json", function (data) {
+        $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=" + encodeURI(JSON.stringify(arcCorridorPolygon)) + "&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=json", function (data) {
           console.log(data);
           var randomParcel = data.features[Math.floor(Math.random() * data.features.length)];
           var llb = new mapboxgl.LngLatBounds(randomParcel.geometry.rings[0]);
@@ -481,7 +481,7 @@ var surveyModule = function () {
       }, 500);
     },
     getParcelData: function (lngLat) {
-      $.getJSON('http://gis.detroitmi.gov/arcgis/rest/services/DoIT/CompositeGeocoder/GeocodeServer/reverseGeocode?location=%7B%22x%22%3A+' + lngLat[0] + '%2C%22y%22%3A+' + lngLat[1] + '%2C%22spatialReference%22%3A+%7B%22wkid%22%3A+4326%7D%7D&distance=&langCode=&outSR=4326&returnIntersection=false&f=pjson', function (data) {
+      $.getJSON('https://gis.detroitmi.gov/arcgis/rest/services/DoIT/CompositeGeocoder/GeocodeServer/reverseGeocode?location=%7B%22x%22%3A+' + lngLat[0] + '%2C%22y%22%3A+' + lngLat[1] + '%2C%22spatialReference%22%3A+%7B%22wkid%22%3A+4326%7D%7D&distance=&langCode=&outSR=4326&returnIntersection=false&f=pjson', function (data) {
         console.log(data);
         survey.setSurveyPossibleeAddress(data.address.Street);
         console.log(survey.getSurveyPossibleeAddress());
@@ -492,7 +492,7 @@ var surveyModule = function () {
             addr += tempArr[i];
             i < tempArr.length && i + 1 !== tempArr.length ? addr += '+' : 0;
           }
-          $.getJSON('http://gis.detroitmi.gov/arcgis/rest/services/DoIT/CompositeGeocoder/GeocodeServer/findAddressCandidates?Street=&City=&ZIP=&SingleLine=' + addr + '&category=&outFields=User_fld&maxLocations=&outSR=&searchExtent=&location=&distance=&magicKey=&f=pjson', function (parcel) {
+          $.getJSON('https://gis.detroitmi.gov/arcgis/rest/services/DoIT/CompositeGeocoder/GeocodeServer/findAddressCandidates?Street=&City=&ZIP=&SingleLine=' + addr + '&category=&outFields=User_fld&maxLocations=&outSR=&searchExtent=&location=&distance=&magicKey=&f=pjson', function (parcel) {
             console.log(parcel.candidates[0].attributes.User_fld);
             console.log(getQueryVariable('survey'));
             let tempParcel = survey.getPostData().answers[0].answer;
@@ -506,7 +506,7 @@ var surveyModule = function () {
             console.log(cleanParcelID);
             switch (true) {
               case tempParcel === null:
-                $.getJSON('http://apis.detroitmi.gov/photo_survey/count/' + cleanParcelID + '/', function (surveys) {
+                $.getJSON('https://apis.detroitmi.gov/photo_survey/count/' + cleanParcelID + '/', function (surveys) {
                   console.log('new parcel');
                   surveys.count > 0 ? survey.setPastSurveys(true) : survey.setPastSurveys(false);
                   survey.loadHTML();
@@ -515,7 +515,7 @@ var surveyModule = function () {
               case getQueryVariable('survey') === 'on' && tempParcel !== parcel.candidates[0].attributes.User_fld:
                 console.log('clear survey');
                 survey.clearSurvey();
-                $.getJSON('http://apis.detroitmi.gov/photo_survey/count/' + cleanParcelID + '/', function (surveys) {
+                $.getJSON('https://apis.detroitmi.gov/photo_survey/count/' + cleanParcelID + '/', function (surveys) {
                   console.log(surveys.count);
                   surveys.count > 0 ? survey.setPastSurveys(true) : survey.setPastSurveys(false);
                   survey.loadHTML();
@@ -523,7 +523,7 @@ var surveyModule = function () {
                 break;
               default:
                 console.log('same parcel');
-                $.getJSON('http://apis.detroitmi.gov/photo_survey/count/' + cleanParcelID + '/', function (surveys) {
+                $.getJSON('https://apis.detroitmi.gov/photo_survey/count/' + cleanParcelID + '/', function (surveys) {
                   console.log(surveys.count);
                   surveys.count > 0 ? survey.setPastSurveys(true) : survey.setPastSurveys(false);
                 });
@@ -591,7 +591,7 @@ var surveyModule = function () {
       };
       console.log(tempData);
       tempParcel = tempParcel.replace(/\./g, '-');
-      survey.sendDataTOServer('http://apis.detroitmi.gov/photo_survey/survey/' + tempParcel + '/', newData);
+      survey.sendDataTOServer('https://apis.detroitmi.gov/photo_survey/survey/' + tempParcel + '/', newData);
     },
     sendDataTOServer: function (url, data, success) {
       data = JSON.stringify(data);
