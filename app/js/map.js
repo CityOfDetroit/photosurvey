@@ -452,6 +452,7 @@ var verifySurveyClose = function verifySurveyClose(action){
 };
 var showSurveyClose = function showSurveyClose(){
   (document.querySelector('#end-survey-popup').className === 'active') ? 0 : document.querySelector('#end-survey-popup').className = 'active';
+  surve.setSurveyParcelsSet = null;
 };
 document.getElementById('close-survey-btn').addEventListener('click',showSurveyClose);
 document.querySelectorAll('.end-survey-buttons > span').forEach(function(item){
