@@ -63,7 +63,7 @@ map.on("style.load", function() {
 });
 mly.on(Mapillary.Viewer.nodechanged, function(node) {
   updateURLParams(['','','','','','','on']);
-  document.querySelector('.survey-display > .street-name > h1').innerHTML = 'LOADING<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>';
+  document.querySelector('#survey-note-card > .street-name > h1').innerHTML = 'LOADING<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>';
   var lngLat = [node.latLon.lon, node.latLon.lat];
   var data = {
     type: "Feature",
@@ -413,8 +413,7 @@ var closeSurvey = function closeSurvey() {
   }
   console.log(document.querySelector('#info').className === 'active');
   (document.querySelector('#survey').className === 'active') ? document.querySelector('#survey').className = '' : 0;
-  (document.querySelector('#map-survey').className === 'survey-on') ? document.querySelector('#map-survey').className = '' : 0;
-  (document.querySelector('#map-survey > .survey-display').className === 'survey-display') ? 0 : document.querySelector('#map-survey > .survey-display').className = 'survey-display';
+  (document.querySelector('#survey-note-card').className === '') ? 0 : document.querySelector('#survey-note-card').className = '';
   (document.querySelector('#map').className === 'mapboxgl-map') ? 0 : document.querySelector('#map').className = 'mapboxgl-map';
   (document.querySelector('#legend').className === 'survey-on') ? document.querySelector('#legend').className = '' : 0;
   (document.querySelector('.mapboxgl-control-container').className === 'mapboxgl-control-container') ? 0 : document.querySelector('.mapboxgl-control-container').className = 'mapboxgl-control-container';
@@ -452,7 +451,6 @@ var verifySurveyClose = function verifySurveyClose(action){
 };
 var showSurveyClose = function showSurveyClose(){
   (document.querySelector('#end-survey-popup').className === 'active') ? 0 : document.querySelector('#end-survey-popup').className = 'active';
-  surve.setSurveyParcelsSet = null;
 };
 document.getElementById('close-survey-btn').addEventListener('click',showSurveyClose);
 document.querySelectorAll('.end-survey-buttons > span').forEach(function(item){

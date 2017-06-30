@@ -8,18 +8,7 @@ main {
   position: relative;
   width: 100%;
   height: 100vh;
-  overflow: hidden;
-  display: flex; }
-
-#map-survey {
-  width: 100vw;
-  height: 100vh;
-  transition: all 0.2s ease-in-out; }
-
-#map-survey.survey-on {
-  flex: 1;
-  height: 100vh;
-  transition: all 0.2s ease-in-out; }
+  overflow: hidden; }
 
 #map {
   width: 100%;
@@ -27,20 +16,31 @@ main {
   transition: all 0.2s ease-in-out; }
 
 #map.survey-on {
-  width: 100%;
-  height: 55vh;
+  width: 15em;
+  height: 15em;
+  position: absolute;
+  bottom: 1em;
+  left: 1em;
+  border-radius: 50%;
+  overflow: hidden;
+  z-index: 11;
+  box-shadow: -2px 2px 8px 0px rgba(0, 0, 0, 0.5);
   transition: all 0.2s ease-in-out; }
 
-.survey-display {
-  width: 100%;
-  height: 0;
-  overflow-y: scroll;
+#survey-note-card {
+  width: 30em;
+  height: auto;
+  overflow-y: auto;
   background-color: #fff;
+  box-shadow: -2px 2px 8px 0px rgba(0, 0, 0, 0.5);
+  position: absolute;
+  top: 1em;
+  right: -31em;
+  z-index: 11;
   transition: all 0.2s ease-in-out; }
 
-.survey-display.survey-on {
-  width: 100%;
-  height: 45vh;
+#survey-note-card.survey-on {
+  right: 1em;
   transition: all 0.2s ease-in-out; }
 
 #info {
@@ -56,15 +56,15 @@ main {
 
 #survey {
   width: 0;
-  height: 100vh;
+  height: 0;
   background-color: #fff;
   z-index: 5;
-  padding: 0 0 2em 0;
+  padding: 0;
   transition: all 0.2s ease-in-out;
   position: relative; }
 
 #survey.active {
-  width: 60vw;
+  width: 100vw;
   height: 100vh;
   background-color: #fff;
   z-index: 5;
@@ -162,7 +162,7 @@ main {
 #close-survey-btn {
   cursor: pointer;
   position: absolute;
-  right: 1.5em;
+  right: .5em;
   top: .5em;
   width: 2em;
   height: 2em; }
@@ -178,7 +178,7 @@ main {
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-  z-index: 10;
+  z-index: 12;
   display: flex; }
 
 #end-survey-popup > .end-survey-content {

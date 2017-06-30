@@ -5,12 +5,12 @@
   <title>Photo Survey</title>
   <meta name="description" content="Property Photosurvey for the City of Detroit.">
   <meta name="author" content="Edgar Montes, Dexter Slursarski & Karl Kaebnick">
-  <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0' />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
   <!--build:css css/styles.min.css-->
-  <link href='https://unpkg.com/mapillary-js@2.5.2/dist/mapillary.min.css' rel='stylesheet' />
-  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.29.0/mapbox-gl.css' rel='stylesheet' />
-  <link rel='stylesheet' href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.0.1/mapbox-gl-geocoder.css' type='text/css' />
-  <link href='css/styles.css' rel='stylesheet' />
+  <link href="https://unpkg.com/mapillary-js@2.5.2/dist/mapillary.min.css" rel="stylesheet" />
+  <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v0.29.0/mapbox-gl.css" rel="stylesheet" />
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.0.1/mapbox-gl-geocoder.css" type="text/css" />
+  <link href="css/styles.css" rel="stylesheet" />
   <!--endbuild-->
 </head>
 <body>
@@ -39,7 +39,7 @@
         <article class="street-name"></article>
         <article class="not-rental"></article>
         <article class="rental"></article>
-        <article id='geocoder' class='geocoder'></article>
+        <article id="geocoder" class="geocoder"></article>
         <article class="parcel-info rental-info"></article>
         <article class="parcel-data btn-type owner"></article>
         <article class="parcel-data btn-type building"></article>
@@ -48,7 +48,7 @@
         <article class="total-rentals"></article>
         <article class="overall-number"></article>
         <article id="close-emergency-modal-btn">
-          <img src="img/error.png" alt="close"></img>
+          <img src="img/error.png" alt="close"/>
         </article>
         <article class="layer-controllers">
           <h5>CORRIDORS</h5>
@@ -125,24 +125,16 @@
     </section>
     <section id="survey" class="">
     </section>
-    <section id="map-survey">
-      <article class="survey-display">
-        <article id="close-survey-btn">
-          <img src="img/error.png" alt="close"></img>
-        </article>
-        <article class="street-name">
-          <h1></h1>
-        </article>
-        <article class="question-container">
-
-        </article>
-        <article class="survey-buttons">
-
-        </article>
+    <article id="map"></article>
+    <article id="survey-note-card">
+      <article id="close-survey-btn">
+        <img src="img/error.png" alt="close"/>
       </article>
-      <article id='map'></article>
-    </section>
-    <section id='mobile-geocoder'></section>
+      <article class="street-name"><h1></h1></article>
+      <article class="question-container"></article>
+      <article class="survey-buttons"></article>
+    </article>
+    <section id="mobile-geocoder"></section>
     <section id="basemap-toggle">
       <article class="map-view" title="Map view">
         <img src="img/map.png" alt="map view">
@@ -151,11 +143,11 @@
         <img src="img/satellites.png" alt="satellite view">
       </article>
     </section>
-    <div id='legend'>
+    <div id="legend">
       <strong>SURVEY PROPERTIES</strong>
-      <nav class='legend clearfix'>
-        <span style='background:#114BC7;'></span>
-        <span style='background:#DF5800;'></span>
+      <nav class="legend clearfix">
+        <span style="background:#114BC7;"></span>
+        <span style="background:#DF5800;"></span>
         <label>Already Surveyed</label>
         <label>Need Survey</label>
       </nav>
@@ -163,17 +155,17 @@
   </main>
   <!--build:js js/main.min.js -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-  <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.0.1/mapbox-gl-geocoder.js'></script>
-  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.38.0/mapbox-gl.js'></script>
-  <script src='https://unpkg.com/mapillary-js@2.5.2/dist/mapillary.min.js'></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v2.0.1/mapbox-gl-geocoder.js"></script>
+  <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v0.38.0/mapbox-gl.js"></script>
+  <script src="https://unpkg.com/mapillary-js@2.5.2/dist/mapillary.min.js"></script>
   <script src="https://npmcdn.com/@turf/turf/turf.min.js"></script>
-  <script src='https://unpkg.com/terraformer@1.0.7'></script>
-  <script src='https://unpkg.com/terraformer-arcgis-parser@1.0.5'></script>
+  <script src="https://unpkg.com/terraformer@1.0.7"></script>
+  <script src="https://unpkg.com/terraformer-arcgis-parser@1.0.5"></script>
   <script src="js/survey.module.js"></script>
-  <script src='js/panel.module.js'></script>
-  <script src='js/map.js'></script>
-  <script src='js/map_section_click_module.js'></script>
-  <script src='js/moment.min.js'></script>
+  <script src="js/panel.module.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/map_section_click_module.js"></script>
+  <script src="js/moment.min.js"></script>
   <!--endbuild -->
 </body>
 </html>

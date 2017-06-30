@@ -484,7 +484,17 @@ var surveyModule = (function(){
         console.log(arcCorridorPolygon);
        $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcCorridorPolygon))+"&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=json", function( data ) {
          console.log(data);
-         survey.surveyParcelsSet = data.features;
+         if(survey.getSurveyNextParcel() !== null){
+           survey.surveyParcelsSet = data.features;
+         }else{
+           let llb = new mapboxgl.LngLatBounds(data.features[0].geometry.rings[0]);
+           let center = llb.getCenter();
+           console.log(center);
+           mly.moveCloseTo(center.lat, center.lng)
+             .then(
+                 function(node) { console.log(node.key); },
+                 function(error) { console.error(error); });
+         }
        });
      });
     },
@@ -574,16 +584,16 @@ var surveyModule = (function(){
            return 0;
          }
        });
+       let llb = new mapboxgl.LngLatBounds(nextParcel.geometry.rings[0]);
+       let center = llb.getCenter();
+       console.log(center);
+       mly.moveCloseTo(center.lat, center.lng)
+         .then(
+             function(node) { console.log(node.key); },
+             function(error) { console.error(error); });
      }else{
-       nextParcel = currentParcels[Math.floor(Math.random()*currentParcels.length)];
+       survey.setSurveyParcelsSet();
      }
-     let llb = new mapboxgl.LngLatBounds(nextParcel.geometry.rings[0]);
-     var center = llb.getCenter();
-     console.log(center);
-     mly.moveCloseTo(center.lat, center.lng)
-       .then(
-           function(node) { console.log(node.key); },
-           function(error) { console.error(error); });
     },
     startSurvey: function(){
       console.log(currentURLParams.parcel);
@@ -621,8 +631,8 @@ var surveyModule = (function(){
     displaySurveyPanels: function(){
       (document.querySelector('#info').className === 'active') ? document.querySelector('#info').className = '' : 0;
       (document.querySelector('#survey').className === 'active') ? 0 : document.querySelector('#survey').className = 'active';
-      (document.querySelector('#map-survey').className === 'survey-on') ? 0 : document.querySelector('#map-survey').className = 'survey-on';
-      (document.querySelector('#map-survey > .survey-display').className === 'survey-display') ? document.querySelector('#map-survey > .survey-display').className = 'survey-display survey-on': 0;
+      (document.querySelector('#map').className === 'survey-on') ? 0 : document.querySelector('#map').className = 'survey-on';
+      (document.querySelector('#survey-note-card').className === '') ? document.querySelector('#survey-note-card').className = 'survey-on': 0;
       (document.querySelector('#map').className === 'mapboxgl-map') ? document.querySelector('#map').className = 'mapboxgl-map survey-on' : 0;
       (document.querySelector('#legend').className === 'survey-on') ? 0 : document.querySelector('#legend').className = 'survey-on';
       (document.querySelector('.mapboxgl-control-container').className === 'mapboxgl-control-container') ? document.querySelector('.mapboxgl-control-container').className = 'mapboxgl-control-container survey-on' : 0;
@@ -649,7 +659,7 @@ var surveyModule = (function(){
             let tempParcel = survey.getPostData().answers[0].answer;
             console.log(tempParcel);
             survey.setSurveyCurrentAddress(survey.getSurveyPossibleeAddress());
-            document.querySelector('.survey-display > .street-name > h1').innerHTML = survey.getSurveyCurrentAddress();
+            document.querySelector('#survey-note-card > .street-name > h1').innerHTML = survey.getSurveyCurrentAddress();
             map.setFilter("parcel-fill-hover", ["==", "parcelno", parcel.candidates[0].attributes.User_fld]);
             let cleanParcelID = parcel.candidates[0].attributes.User_fld;
             console.log(cleanParcelID);
@@ -661,7 +671,6 @@ var surveyModule = (function(){
                   console.log('new parcel');
                   (surveys.count > 0) ? survey.setPastSurveys(true) : survey.setPastSurveys(false);
                   survey.loadHTML();
-                  survey.setSurveyParcelsSet();
                 });
                 break;
               case getQueryVariable('survey') === 'on' && tempParcel !== parcel.candidates[0].attributes.User_fld:
