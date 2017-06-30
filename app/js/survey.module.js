@@ -5,6 +5,7 @@ var surveyModule = (function(){
       lat: null,
       lng: null
     },
+    currentParcel: null,
     pastSurveys : false,
     surveyIndex : 0,
     surveyParcelsSet: null,
@@ -503,6 +504,12 @@ var surveyModule = (function(){
     getSurveyParcelsSet: function () {
       return this.surveyParcelsSet;
     },
+    setCurrentParcel: function(value){
+      this.currentParcel = value;
+    },
+    getCurrentParcel: function(){
+      return this.currentParcel;
+    },
     setSurveyNextParcel: function(value){
       this.surveyNextParcel = value;
     },
@@ -605,7 +612,7 @@ var surveyModule = (function(){
       console.log(getQueryVariable('survey'));
       survey.setSurveyIndex(0);
       this.clearAnswersButtons();
-      if(getQueryVariable('survey') === 'on'){
+      if(getQueryVariable('survey')){
         this.loadSurveyWithinCorridor();
       }else{
         if(getQueryVariable('parcel')){
@@ -658,15 +665,17 @@ var surveyModule = (function(){
           $.getJSON('https://gis.detroitmi.gov/arcgis/rest/services/DoIT/CompositeGeocoder/GeocodeServer/findAddressCandidates?Street=&City=&ZIP=&SingleLine='+ addr +'&category=&outFields=User_fld&maxLocations=&outSR=&searchExtent=&location=&distance=&magicKey=&f=pjson' , function( parcel ) {
             console.log(parcel.candidates[0].attributes.User_fld);
             console.log(getQueryVariable('survey'));
-            let tempParcel = survey.getPostData().answers[0].answer;
+            let tempParcel = survey.getCurrentParcel();
             console.log(tempParcel);
             survey.setSurveyCurrentAddress(survey.getSurveyPossibleeAddress());
             document.querySelector('#survey-note-card > .street-name > h1').innerHTML = survey.getSurveyCurrentAddress();
             map.setFilter("parcel-fill-hover", ["==", "parcelno", parcel.candidates[0].attributes.User_fld]);
+            updateURLParams([17,lngLat[0], lngLat[1], parcel.candidates[0].attributes.User_fld,'','']);
             let cleanParcelID = parcel.candidates[0].attributes.User_fld;
             console.log(cleanParcelID);
             cleanParcelID = cleanParcelID.replace(/\./g,'_');
             console.log(cleanParcelID);
+            survey.setCurrentParcel(cleanParcelID);
             switch (true) {
               case tempParcel === null:
                 $.getJSON('https://apis.detroitmi.gov/photo_survey/count/'+cleanParcelID+'/' , function( surveys ) {
@@ -675,7 +684,7 @@ var surveyModule = (function(){
                   survey.loadHTML();
                 });
                 break;
-              case getQueryVariable('survey') === 'on' && tempParcel !== parcel.candidates[0].attributes.User_fld:
+              case getQueryVariable('survey') && tempParcel !== parcel.candidates[0].attributes.User_fld:
                 console.log('clear survey');
                 survey.clearSurvey();
                 $.getJSON('https://apis.detroitmi.gov/photo_survey/count/'+cleanParcelID+'/' , function( surveys ) {
@@ -742,16 +751,26 @@ var surveyModule = (function(){
       console.log('submitting survey');
       let tempData = survey.getPostData();
       console.log(tempData);
-      let tempParcel = tempData.answers[0].answer;
+      let tempParcel = survey.getCurrentParcel();
       let cleanAnswer = [];
       tempData.answers.forEach(function(item){
         (item.answer !== null) ? cleanAnswer.push(item) : 0;
       });
       let parcelIDs = [];
-      console.log(survey.setSurveyParcelsSet());
-      survey.getSurveyParcelsSet().forEach(function(item){
-        parcelIDs.push(item.attributes.PARCELNO);
-      });
+      console.log(survey.getSurveyParcelsSet());
+      if(survey.getSurveyParcelsSet() === null){
+        survey.setSurveyParcelsSet();
+        setTimeout(function() {
+          survey.getSurveyParcelsSet().forEach(function(item){
+            parcelIDs.push(item.attributes.PARCELNO);
+          });
+        }, 500);
+      }else{
+        survey.getSurveyParcelsSet().forEach(function(item){
+          parcelIDs.push(item.attributes.PARCELNO);
+        });
+      }
+
       let newData =  {
         'survey_id'   : 'default_combined',
         'user_id'     : 'xyz',
@@ -759,7 +778,7 @@ var surveyModule = (function(){
         'parcel_ids'  : parcelIDs
       };
       console.log(tempData);
-      tempParcel = tempParcel.replace(/\./g,'-');
+      console.log('https://apis.detroitmi.gov/photo_survey/survey/'+tempParcel+'/');
       survey.sendDataTOServer('https://apis.detroitmi.gov/photo_survey/survey/'+tempParcel+'/', newData);
     },
     sendDataTOServer: function (url, data, success) {

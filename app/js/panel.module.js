@@ -32,7 +32,7 @@ var panelModule = (function(survey){
       });
     },
     loadImage: function(data){
-      document.getElementById('parcel-image').innerHTML ='<img src="https://apis.detroitmi.gov' + data[0] + '" alt="parcel image"></img>';
+      document.getElementById('parcel-image').innerHTML ='<img src="' + data[0] + '" alt="parcel image"></img>';
     },
     setParcelNumber : function(parcel) {
       console.log(parcel);

@@ -62,7 +62,7 @@ map.on("style.load", function() {
   });
 });
 mly.on(Mapillary.Viewer.nodechanged, function(node) {
-  updateURLParams(['','','','','','','on']);
+  updateURLParams(['','','','','','',node.key]);
   document.querySelector('#survey-note-card > .street-name > h1').innerHTML = 'LOADING<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>';
   var lngLat = [node.latLon.lon, node.latLon.lat];
   var data = {
