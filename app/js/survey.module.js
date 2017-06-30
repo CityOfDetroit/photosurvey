@@ -487,13 +487,15 @@ var surveyModule = (function(){
          if(survey.getSurveyNextParcel() !== null){
            survey.surveyParcelsSet = data.features;
          }else{
-           let llb = new mapboxgl.LngLatBounds(data.features[0].geometry.rings[0]);
+           let randomItem = data.features[Math.floor(Math.random()*data.features.length)];
+           let llb = new mapboxgl.LngLatBounds(randomItem.geometry.rings[0]);
            let center = llb.getCenter();
            console.log(center);
            mly.moveCloseTo(center.lat, center.lng)
              .then(
                  function(node) { console.log(node.key); },
                  function(error) { console.error(error); });
+          survey.surveyParcelsSet = data.features;
          }
        });
      });
@@ -624,7 +626,7 @@ var surveyModule = (function(){
       survey.loadHTML();
     },
     loadAnotherSurvey: function(){
-      document.querySelector('.survey-display > .street-name > h1').innerHTML = 'LOADING<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>';
+      document.querySelector('#survey-note-card > .street-name > h1').innerHTML = 'LOADING<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>';
       this.clearAnswersButtons();
       this.startSurvey();
     },
