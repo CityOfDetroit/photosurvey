@@ -748,6 +748,7 @@ var surveyModule = (function(){
         (item.answer !== null) ? cleanAnswer.push(item) : 0;
       });
       let parcelIDs = [];
+      console.log(survey.setSurveyParcelsSet());
       survey.getSurveyParcelsSet().forEach(function(item){
         parcelIDs.push(item.attributes.PARCELNO);
       });
