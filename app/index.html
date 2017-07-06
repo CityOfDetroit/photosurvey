@@ -15,6 +15,24 @@
 </head>
 <body>
   <main>
+    <section id="login-panel">
+      <article id="login-display">
+        <h1>CITY OF DETROIT PHOTOSURVEY</h1>
+        <label>
+          <span>Email</span>
+          <input id="login-email" type="email" />
+        </label>
+        <label>
+          <span>Password</span>
+          <input id="login-password" type="password" />
+        </label>
+        <div id="invalid-login" class="login-alert">Invalid login information. Please try again. <span class="close-alert">&times;</span></div>
+        <div id="error-login" class="login-alert">There was an error login in. Please try again. <span class="close-alert">&times;</span></div>
+        <article id="login-btn" onclick="login.startLogin()">
+          LOGIN
+        </article>
+      </article>
+    </section>
     <section id="end-survey-popup">
       <article class="end-survey-content">
         <h4>Are you sure you want to exit this survey?</h4>
@@ -161,6 +179,7 @@
   <script src="https://npmcdn.com/@turf/turf/turf.min.js"></script>
   <script src="https://unpkg.com/terraformer@1.0.7"></script>
   <script src="https://unpkg.com/terraformer-arcgis-parser@1.0.5"></script>
+  <script src="js/login.module.js"></script>
   <script src="js/survey.module.js"></script>
   <script src="js/panel.module.js"></script>
   <script src="js/map.js"></script>

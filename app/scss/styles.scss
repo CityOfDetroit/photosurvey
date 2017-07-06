@@ -414,3 +414,66 @@ by the way it is so weird when you look at your code a couple of years after you
 	color: #232323;
 	font-weight: bold;
 }
+// ======================= login ===============================
+#login-panel{
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  background-color: rgba(0,0,0,.3);
+  z-index: 15;
+  width: 100vw;
+  height: 100vh;
+}
+#login-display{
+  margin: auto;
+  width: 25em;
+  background-color: #fff;
+  padding: 2em;
+  text-align: center;
+}
+#login-display > h1{
+  color: #EB002B;
+  font-weight: bold;
+  margin: 0;
+}
+#login-display > label{
+  color: #7d7575;
+  margin: 1em 0;
+  display: block;
+  width: 100%;
+}
+#login-display > label > input{
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #d6d0d0;
+  padding: .5em;
+  text-align: center;
+}
+#login-display > label > input:focus{
+  outline: none;
+}
+#login-btn{
+  margin-top: 2em;
+  background-color: #EB002B;
+  padding: .5em 1em;
+  color: #fff;
+  cursor: pointer;
+  transition: all .2s ease-in-out;
+}
+#login-btn:hover{
+  transition: all .2s ease-in-out;
+  padding: 1em 1em;
+}
+.login-alert{
+  display: none;
+}
+.login-alert.active{
+  display: block;
+  padding: .5em;
+  margin: .5em 0;
+  background-color: #fca8a8;
+}
+.close-alert{
+  cursor: pointer;
+}
