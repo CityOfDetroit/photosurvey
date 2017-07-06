@@ -425,6 +425,9 @@ by the way it is so weird when you look at your code a couple of years after you
   width: 100vw;
   height: 100vh;
 }
+#login-panel.hidden{
+  display: none;
+}
 #login-display{
   margin: auto;
   width: 25em;

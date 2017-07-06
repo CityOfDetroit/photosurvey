@@ -20,7 +20,7 @@ var loginModule = (function(){
         console.log('not empty fields');
         if(validateEmail(user)){
           console.log('valid email');
-          this.sendLogin('https://apis.detroitmi.gov/photo_survey/auth_token/',{'emai':user,'password':pass})
+          this.sendLogin('https://apis.detroitmi.gov/photo_survey/auth_token/',{"email":user,"password":pass})
         }else{
           console.log('invalid email');
         }
@@ -29,6 +29,8 @@ var loginModule = (function(){
       }
     },
     sendLogin: function(url, data){
+      data = JSON.stringify(data);
+      console.log(data);
       $.ajax({
           url: url,
           type: "POST",
@@ -36,11 +38,21 @@ var loginModule = (function(){
           dataType:'json',
           success: function(response){
             console.log(response);
+            this.token = response.token;
+            console.log(this.token);
+            login.exitLoginScreen();
           },
           error: function(error){
               console.log("Something went wrong", error);
           }
       });
+    },
+    exitLoginScreen: function(){
+      document.getElementById('login-panel').className = 'hidden';
+      this.getToken();
+    },
+    getToken: function(){
+      currentToken = this.token;
     }
   };
   return login;

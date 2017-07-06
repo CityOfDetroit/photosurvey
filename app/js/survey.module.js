@@ -1,5 +1,5 @@
 "use strict";
-var surveyModule = (function(){
+var surveyModule = (function(login){
   var survey = {
     currentLatLng: {
       lat: null,
@@ -778,6 +778,7 @@ var surveyModule = (function(){
         'parcel_ids'  : parcelIDs
       };
       console.log(tempData);
+      console.log(currentToken);
       console.log('https://apis.detroitmi.gov/photo_survey/survey/'+tempParcel+'/');
       survey.sendDataTOServer('https://apis.detroitmi.gov/photo_survey/survey/'+tempParcel+'/', newData);
     },
