@@ -3,7 +3,6 @@
 var login = Object.create(loginModule);
 var mapPanel = Object.create(panelModule);
 var survey = Object.create(surveyModule);
-var currentToken = null;
 var bounds = [
     [		-83.3437, 	42.2102], // Southwest coordinates
     [		-82.8754, 	42.5197]  // Northeast coordinates
@@ -107,6 +106,7 @@ window.onload = function(){
   console.log(getQueryVariable('parcel'));
   console.log(getQueryVariable('neighborhood'));
   console.log(getQueryVariable('district'));
+  console.log(getQueryVariable('survey'));
   if(getQueryVariable('zoom')){
     if (getQueryVariable('lat') && (getQueryVariable('lat') !== '0')) {
       switch (true) {
@@ -123,6 +123,9 @@ window.onload = function(){
           break;
         case getQueryVariable('parcel') !== false:
           updateURLParams([getQueryVariable('zoom'),getQueryVariable('lng'),getQueryVariable('lat'),getQueryVariable('parcel'),'','']);
+          // if(getQueryVariable('survey') !== false){
+          //   updateURLParams(['','','','','','',getQueryVariable('survey')]);
+          // }
           mapPanel.createFeatureData();
           break;
         default:

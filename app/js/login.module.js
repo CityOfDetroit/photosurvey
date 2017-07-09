@@ -1,15 +1,9 @@
 "use strict";
 var loginModule = (function(){
-  var validateEmail = function validateEmail(email) {
-    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-    return re.test(email);
-  };
   var login = {
     'token': null,
-    'user': null,
-    'password': null,
     startLogin: function(){
-      this.getLoginInfo();
+      login.getLoginInfo();
     },
     getLoginInfo: function(){
       let user = document.getElementById('login-email').value;
@@ -18,15 +12,19 @@ var loginModule = (function(){
       console.log(pass);
       if(user !== '' && pass !== ''){
         console.log('not empty fields');
-        if(validateEmail(user)){
+        if(login.validateEmail(user)){
           console.log('valid email');
-          this.sendLogin('https://apis.detroitmi.gov/photo_survey/auth_token/',{"email":user,"password":pass})
+          login.sendLogin('https://apis.detroitmi.gov/photo_survey/auth_token/',{"email":user,"password":pass})
         }else{
           console.log('invalid email');
         }
       }else{
         console.log('missing fields');
       }
+    },
+    validateEmail : function(email) {
+      var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+      return re.test(email);
     },
     sendLogin: function(url, data){
       data = JSON.stringify(data);
@@ -38,8 +36,8 @@ var loginModule = (function(){
           dataType:'json',
           success: function(response){
             console.log(response);
-            this.token = response.token;
-            console.log(this.token);
+            login.setToken(response.token);
+            console.log(login.getToken);
             login.exitLoginScreen();
           },
           error: function(error){
@@ -49,10 +47,13 @@ var loginModule = (function(){
     },
     exitLoginScreen: function(){
       document.getElementById('login-panel').className = 'hidden';
-      this.getToken();
+      login.getToken();
+    },
+    setToken: function(token){
+      login.token = token;
     },
     getToken: function(){
-      currentToken = this.token;
+    return login.token;
     }
   };
   return login;
