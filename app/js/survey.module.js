@@ -13,6 +13,8 @@ var surveyModule = (function(){
     surveyCurrentAddress: null,
     surveyPossibleAddress: null,
     surveyPostData : {
+      'note': null,
+      'commonName': null,
       'answers'     : [
         {
           "question_id" : "is_structure_on_site",
@@ -107,7 +109,9 @@ var surveyModule = (function(){
       'What is the level of fire damage?',
       'Is the building secure or open to trespass?',
       'Elements of the Blighted Structure (select all that apply) ',
-      'Is the sidewalk/curb: (select all that apply)'
+      'Is the sidewalk/curb: (select all that apply)',
+      'Notes:',
+      'Common name:'
     ],
     answerList: [
       [
@@ -588,21 +592,31 @@ var surveyModule = (function(){
         {
           text: 'Cracked',
           value: 'a',
-          nextQuestionKey: null
+          nextQuestionKey: 18
         },
         {
           text: 'Uneven over 1.5 inches between flags',
           value: 'b',
-          nextQuestionKey: null
+          nextQuestionKey: 18
         },
         {
           text: 'Missing',
           value: 'c',
-          nextQuestionKey: null
+          nextQuestionKey: 18
         },
         {
           text: 'Sidewalk appears to be in good condition',
           value: 'd',
+          nextQuestionKey: 18
+        }
+      ],
+      [
+        {
+          nextQuestionKey: 19
+        }
+      ],
+      [
+        {
           nextQuestionKey: null
         }
       ]
@@ -653,25 +667,78 @@ var surveyModule = (function(){
         var arcCorridorPolygon = Terraformer.ArcGIS.convert(simplifiedCorridor.geometry);
         console.log(arcCorridorPolygon);
        $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcCorridorPolygon))+"&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=json", function( data ) {
+         console.log('loading Parcel Set');
          console.log(data);
-         if(survey.getSurveyNextParcel() !== null){
-           survey.surveyParcelsSet = data.features;
-         }else{
-           let randomItem = data.features[Math.floor(Math.random()*data.features.length)];
-           let llb = new mapboxgl.LngLatBounds(randomItem.geometry.rings[0]);
-           let center = llb.getCenter();
-           console.log(center);
-           mly.moveCloseTo(center.lat, center.lng)
-             .then(
-                 function(node) { console.log(node.key); },
-                 function(error) { console.error(error); });
-           survey.surveyParcelsSet = data.features;
-         }
+         survey.saveSurveyParcelSet(data.features);
+       });
+     });
+    },
+    goToRandomLocation: function () {
+      var corridorName = '';
+      switch (currentToggleID) {
+        case "c-w-vernor":
+          corridorName = 'W+Vernor';
+          break;
+        case "c-e-vernor":
+          corridorName = 'E+Vernor';
+          break;
+        case "c-michigan":
+          corridorName = 'Michigan';
+          break;
+        case "c-woodward":
+          corridorName = 'Woodward';
+          break;
+        case "c-livernois":
+          corridorName = 'Livernois';
+          break;
+        case "c-grand-river":
+          corridorName = 'Grand+River';
+          break;
+        case "c-seven-mile":
+          corridorName = 'Seven+Mile';
+          break;
+        case "c-mcnichols":
+          corridorName = 'McNichols';
+          break;
+        case "c-gratiot":
+          corridorName = 'Gratiot';
+          break;
+        case "c-jefferson":
+          corridorName = 'Jefferson';
+          break;
+        case "c-warren":
+          corridorName = 'Warren';
+          break;
+        default:
+
+      }
+      $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Corridor_Boundaries/MapServer/0/query?where=Corridor%3D%27"+ corridorName +"%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function( corridor ) {
+        console.log(corridor);
+        var simplifiedCorridor = turf.simplify(corridor.features[0], 0.003, false);
+        console.log(simplifiedCorridor);
+        var arcCorridorPolygon = Terraformer.ArcGIS.convert(simplifiedCorridor.geometry);
+        console.log(arcCorridorPolygon);
+       $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcCorridorPolygon))+"&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=json", function( data ) {
+         console.log('loading Parcel Set');
+         console.log(data);
+         survey.saveSurveyParcelSet(data.features);
+         console.log(window.survey.getSurveyParcelsSet());
+         let randomItem = data.features[Math.floor(Math.random()*data.features.length)];
+         let llb = new mapboxgl.LngLatBounds(randomItem.geometry.rings[0]);
+         let center = llb.getCenter();
+         console.log(center);
+         mly.moveCloseTo(center.lat, center.lng)
+           .then(
+               function(node) { console.log(node.key); },
+               function(error) { console.error(error); });
        });
      });
     },
     getSurveyParcelsSet: function () {
       return this.surveyParcelsSet;
+    },
+    saveSurveyParcelSet: function (value) {
+      this.surveyParcelsSet = value;
     },
     setCurrentParcel: function(value){
       this.currentParcel = value;
@@ -749,7 +816,16 @@ var surveyModule = (function(){
         console.log(tempAnswer);
         this.surveyPostData.answers[index].answer = tempAnswer;
       }else{
-        this.surveyPostData.answers[index].answer = value;
+        switch (index) {
+          case 18:
+            this.surveyPostData.note = value;
+            break;
+          case 19:
+            this.surveyPostData.commonName = value;
+            break;
+          default:
+            this.surveyPostData.answers[index].answer = value;
+        }
       }
     },
     loadSurveyWithinCorridor: function(){
@@ -770,7 +846,7 @@ var surveyModule = (function(){
              function(node) { console.log(node.key); },
              function(error) { console.error(error); });
      }else{
-       survey.setSurveyParcelsSet();
+       survey.goToRandomLocation();
      }
     },
     startSurvey: function(){
@@ -779,6 +855,7 @@ var surveyModule = (function(){
       console.log(getQueryVariable('lat'));
       console.log(getQueryVariable('lng'));
       console.log(getQueryVariable('survey'));
+      survey.setSurveyParcelsSet();
       survey.setSurveyIndex(0);
       this.clearAnswersButtons();
       if(getQueryVariable('survey')){
@@ -820,6 +897,7 @@ var surveyModule = (function(){
       }, 500);
     },
     getParcelData: function(lngLat){
+      console.log(lngLat);
       $.getJSON('https://gis.detroitmi.gov/arcgis/rest/services/DoIT/CompositeGeocoder/GeocodeServer/reverseGeocode?location=%7B%22x%22%3A+'+lngLat[0]+'%2C%22y%22%3A+'+lngLat[1]+'%2C%22spatialReference%22%3A+%7B%22wkid%22%3A+4326%7D%7D&distance=&langCode=&outSR=4326&returnIntersection=false&f=pjson' , function( data ) {
         console.log(data);
         survey.setSurveyPossibleeAddress(data.address.Street);
@@ -900,7 +978,21 @@ var surveyModule = (function(){
           survey.loadHTML();
         }
       }else{
-        console.log('answer was not selected');
+        console.log(document.querySelector('.answer-text'));
+        console.log(typeof(document.querySelector('.answer-text')));
+        if(document.querySelector('.answer-text') !== null){
+          console.log('answer was not selected');
+          survey.setPostData(survey.getSurveyIndex(), document.querySelector('.answer-text').value);
+          if(document.querySelector('.answer-text').getAttribute('data-next-key') === 'null'){
+            survey.submitSurvey();
+          }else{
+            survey.setSurveyIndex(parseInt(document.querySelector('.answer-text').getAttribute('data-next-key')));
+            console.log(survey.getSurveyIndex());
+            survey.loadHTML();
+          }
+        }else{
+          console.log('answer was not selected');
+        }
       }
     },
     clearAnswersButtons: function(){
@@ -926,26 +1018,18 @@ var surveyModule = (function(){
         (item.answer !== null) ? cleanAnswer.push(item) : 0;
       });
       let parcelIDs = [];
-      console.log(survey.getSurveyParcelsSet());
-      if(survey.getSurveyParcelsSet() === null){
-        survey.setSurveyParcelsSet();
-        setTimeout(function() {
-          survey.getSurveyParcelsSet().forEach(function(item){
-            parcelIDs.push(item.attributes.PARCELNO);
-          });
-        }, 500);
-      }else{
-        survey.getSurveyParcelsSet().forEach(function(item){
-          parcelIDs.push(item.attributes.PARCELNO);
-        });
-      }
+      let currentSet = survey.getSurveyParcelsSet();
+      console.log();
+      survey.getSurveyParcelsSet().forEach(function(item){
+        parcelIDs.push(item.attributes.PARCELNO);
+      });
       console.log(window.login.getToken());
       let newData =  {
         "auth_token": window.login.getToken(),
         "survey_id": "default_combined",
-        "note": "This property has degraded severely in the past month",
-        "image_url": "http://apis.detroitmi.gov/data/photo_survey/images/Livernois6/G0100171.JPG",
-        "common_name": "Dexters Donuts",
+        "note": tempData.note,
+        "image_url": getQueryVariable('survey'),
+        "common_name": tempData.commonName,
         "status": "new",
         'answers'     : cleanAnswer,
         'parcel_ids'  : parcelIDs
@@ -1002,6 +1086,12 @@ var surveyModule = (function(){
             break;
           case 17:
             tempHTML += '<label class="checkbox"><input class="answer-options" type="checkbox" value="'+ this.answerList[tempIndex][i].value +'" data-next-key="'+ this.answerList[tempIndex][i].nextQuestionKey +'"/>'+this.answerList[tempIndex][i].text+'</label>';
+            break;
+          case 18:
+            tempHTML += '<textarea id="note" class="answer-text" type="text" data-next-key="'+ this.answerList[tempIndex][i].nextQuestionKey +'"></textarea>';
+            break;
+          case 19:
+            tempHTML += '<input id="common-name" class="answer-text" type="text" data-next-key="'+ this.answerList[tempIndex][i].nextQuestionKey +'"/>';
             break;
           default:
             tempHTML += '<label class="radio"><input class="answer-options" type="radio" name="radio" value="'+ this.answerList[tempIndex][i].value +'" data-next-key="'+ this.answerList[tempIndex][i].nextQuestionKey +'"/>'+ this.answerList[tempIndex][i].text +'</label>';

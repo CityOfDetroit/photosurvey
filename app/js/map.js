@@ -123,9 +123,6 @@ window.onload = function(){
           break;
         case getQueryVariable('parcel') !== false:
           updateURLParams([getQueryVariable('zoom'),getQueryVariable('lng'),getQueryVariable('lat'),getQueryVariable('parcel'),'','']);
-          // if(getQueryVariable('survey') !== false){
-          //   updateURLParams(['','','','','','',getQueryVariable('survey')]);
-          // }
           mapPanel.createFeatureData();
           break;
         default:

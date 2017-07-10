@@ -11,16 +11,29 @@ var loginModule = (function(){
       console.log(user);
       console.log(pass);
       if(user !== '' && pass !== ''){
-        console.log('not empty fields');
         if(login.validateEmail(user)){
-          console.log('valid email');
           login.sendLogin('https://apis.detroitmi.gov/photo_survey/auth_token/',{"email":user,"password":pass})
         }else{
           console.log('invalid email');
+          document.getElementById('invalid-login').className = "login-alert active";
+          document.getElementById('login-display').className = "";
+          document.getElementById('login-display').className = "error";
+          setTimeout(function() {
+            document.getElementById('login-display').className = "";
+          }, 1000);
         }
       }else{
         console.log('missing fields');
+        document.getElementById('invalid-login').className = "login-alert active";
+        document.getElementById('login-display').className = "";
+        document.getElementById('login-display').className = "error";
+        setTimeout(function() {
+          document.getElementById('login-display').className = "";
+        }, 1000);
       }
+    },
+    closeErrorMessage: function(){
+      document.getElementById('invalid-login').className = "login-alert";
     },
     validateEmail : function(email) {
       var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -42,6 +55,12 @@ var loginModule = (function(){
           },
           error: function(error){
               console.log("Something went wrong", error);
+              document.getElementById('invalid-login').className = "login-alert active";
+              document.getElementById('login-display').className = "";
+              document.getElementById('login-display').className = "error";
+              setTimeout(function() {
+                document.getElementById('login-display').className = "";
+              }, 1000);
           }
       });
     },

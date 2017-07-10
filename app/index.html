@@ -26,8 +26,7 @@
           <span>Password</span>
           <input id="login-password" type="password" />
         </label>
-        <div id="invalid-login" class="login-alert">Invalid login information. Please try again. <span class="close-alert">&times;</span></div>
-        <div id="error-login" class="login-alert">There was an error login in. Please try again. <span class="close-alert">&times;</span></div>
+        <div id="invalid-login" class="login-alert">Invalid login information. Please try again. <span class="close-alert" onclick="login.closeErrorMessage()">&times;</span></div>
         <article id="login-btn" onclick="login.startLogin()">
           LOGIN
         </article>
