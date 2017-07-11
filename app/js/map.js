@@ -331,27 +331,6 @@ var startGeocoderResults = function startGeocoderResults(ev){
     $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/ArcGIS/rest/services/Rental_Inspections/FeatureServer/0/query?where="+ encodeURI('ParcelNo=\''+data.candidates[0].attributes.User_fld+'\'')+"&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=ACTION_DESCRIPTION%2C+ParcelNo%2C+CSM_RECD_DATE&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=pjson&token=", function( Rental_Inspections ) {
       console.log(Rental_Inspections);
       var tempParcelDataHTML = '';
-      if(Rental_Inspections.features.length){
-        tempParcelDataHTML += '<article class="info-items"><span>RENTAL STATUS</span> ';
-        switch (Rental_Inspections.features[0].attributes.ACTION_DESCRIPTION) {
-          case 'Issue Initial Registration ':
-            tempParcelDataHTML += '<initial><strong>Certificate of Registration</strong></initial></article>';
-            break;
-          case 'Issue Renewal Registration':
-            tempParcelDataHTML += '<initial><strong>Certificate of Registration</strong></initial></article>';
-            break;
-          default:
-            tempParcelDataHTML += '<cofc><strong>Certificate of Compliance</strong></cofc></article>';
-        }
-        document.querySelector('.parcel-info.rental-info').innerHTML = tempParcelDataHTML;
-        document.querySelector('.info-container > .rental').innerHTML = '<a href="https://app.smartsheet.com/b/form?EQBCT=91c0d55e47064373835ce198802764e2" target="_blank"><article class="form-btn">SUBMIT A RENTER\'S COMPLAINT</article></a>';
-        document.querySelector('.info-container > .not-rental').innerHTML = '';
-        parcelData['rental-status'] = Rental_Inspections.features[0].attributes.ACTION_DESCRIPTION;
-      }else{
-        document.querySelector('.parcel-info.rental-info').innerHTML = '<article class="info-items"><span>RENTAL STATUS</span> Not a Rental</article>';
-        document.querySelector('.info-container > .not-rental').innerHTML = '<a href="https://app.smartsheet.com/b/form?EQBCT=7b3746bd20a048a5919ae07bd9ed89de" target="_blank"><article class="form-btn">REGISTER MY RENTAL</article></a>';
-        parcelData['rental-status'] = 'Not a Rental';
-      }
       $.getJSON("https://apis.detroitmi.gov/assessments/parcel/"+data.candidates[0].attributes.User_fld.replace(/\./g,'_')+"/", function( parcel ) {
         //console.log(parcel);
         document.querySelector('.info-container > .street-name').innerHTML = parcel.propstreetcombined;
