@@ -285,7 +285,7 @@ var surveyModule = (function(){
         {
           text: '<strong>Mixed-use Residential / Commercial:</strong> Includes multi-level structures where the ground level supports commercial uses like retail, while the top levels support residential uses like apartments, condominiums, lofts, etc.',
           value : 'c',
-          nextQuestionKey: 12,
+          nextQuestionKey: 9,
         },
         {
           text: '<strong>Industrial:</strong> Includes properties used for manufacturing, storage areas, warehousing, junk yards, landfill operations, and waste disposal sites.',
@@ -954,6 +954,7 @@ var surveyModule = (function(){
       });
     },
     submitAnswer: function(){
+      document.querySelector('.survey-buttons').innerHTML = 'SENDING<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>';
       let allAnswers = document.querySelectorAll('.answer-options');
       let itemsChecked = 0;
       let selectedAnswers = [];
