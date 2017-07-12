@@ -489,31 +489,93 @@ var addToggleLayer = function addToggleLayer(){
     default:
 
   }
-  console.log(encodeURI(corridorName));
-  $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Corridor_Boundaries/MapServer/0/query?where=Corridor%3D%27"+ corridorName +"%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function( corridor ) {
-    console.log(corridor);
-    var simplifiedCorridor = turf.simplify(corridor.features[0], 0.003, false);
-    console.log(simplifiedCorridor);
-    var arcCorridorPolygon = Terraformer.ArcGIS.convert(simplifiedCorridor.geometry);
-    console.log(arcCorridorPolygon);
-     $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcCorridorPolygon))+"&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=json", function( data ) {
-       console.log(data);
-       var new_Filter = ["in",'parcelno'];
-       for (var i = 0; i < data.features.length; i++) {
-         new_Filter.push(data.features[i].attributes.PARCELNO);
-       }
-       map.addLayer({
-        "id": "need-survey",
-        "type": "fill",
-        "source": "parcels",
-        'source-layer': 'parcelsgeojson',
-        'filter': new_Filter,
-        "paint": {
-          "fill-color":"#DF5800",
-          "fill-opacity":0.3
-        }
-      });
-     });
+  var contains = function(needle) {
+    // Per spec, the way to identify NaN is that it is not equal to itself
+    var findNaN = needle !== needle;
+    var indexOf;
+    if(!findNaN && typeof Array.prototype.indexOf === 'function') {
+        indexOf = Array.prototype.indexOf;
+    } else {
+        indexOf = function(needle) {
+          var i = -1, index = -1;
+          for(i = 0; i < this.length; i++) {
+              var item = this[i];
+
+              if((findNaN && item !== item) || item === needle) {
+                  index = i;
+                  break;
+              }
+          }
+          return index;
+        };
+    }
+    return indexOf.call(this, needle) > -1;
+  };
+  var getSurveyedList = function getSurveyedList(list, cleaner){
+    console.log(list);
+    console.log(cleaner);
+    let lists = {
+      'surveyed': [],
+      'needSurvey': []
+    };
+    list.forEach(function(item){
+      (!contains.call(cleaner,item))? lists.needSurvey.push(item):lists.surveyed.push(item);
+    });
+    return lists;
+  };
+  var parcelArray = [];
+  $.getJSON("http://apis.detroitmi.gov/photo_survey/status/", function( parcels ) {
+    console.log(parcels);
+    for (var key in parcels) {
+      parcelArray.push(key);
+    }
+    console.log(encodeURI(corridorName));
+    $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Corridor_Boundaries/MapServer/0/query?where=Corridor%3D%27"+ corridorName +"%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function( corridor ) {
+      console.log(corridor);
+      var simplifiedCorridor = turf.simplify(corridor.features[0], 0.003, false);
+      console.log(simplifiedCorridor);
+      var arcCorridorPolygon = Terraformer.ArcGIS.convert(simplifiedCorridor.geometry);
+      console.log(arcCorridorPolygon);
+       $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcCorridorPolygon))+"&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=json", function( data ) {
+         console.log(data);
+         var needSurveyFilter = ["in",'parcelno'];
+         var alreadySurveyFilter = ["in",'parcelno'];
+         var corridorParcels = [];
+         for (var i = 0; i < data.features.length; i++) {
+           corridorParcels.push(data.features[i].attributes.PARCELNO);
+         }
+         var cleanList = getSurveyedList(corridorParcels,parcelArray);
+         console.log(cleanList);
+         for (var i = 0; i < cleanList.needSurvey.length; i++) {
+           needSurveyFilter.push(cleanList.needSurvey[i]);
+         }
+         for (var i = 0; i < cleanList.surveyed.length; i++) {
+           alreadySurveyFilter.push(cleanList.surveyed[i]);
+         }
+         map.addLayer({
+          "id": "need-survey",
+          "type": "fill",
+          "source": "parcels",
+          'source-layer': 'parcelsgeojson',
+          'filter': needSurveyFilter,
+          "paint": {
+            "fill-color":"#DF5800",
+            "fill-opacity":0.3
+          }
+        });
+        map.addLayer({
+         "id": "already-survey",
+         "type": "fill",
+         "source": "parcels",
+         'source-layer': 'parcelsgeojson',
+         'filter': alreadySurveyFilter,
+         "paint": {
+           "fill-color":"#114BC7",
+           "fill-opacity":0.3
+         }
+       });
+       });
+    });
   });
 };
 var addDataLayers = function addDataLayers(){

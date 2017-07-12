@@ -316,22 +316,29 @@ var panelModule = (function(survey){
           this.setTempHTML('clear');
           this.setPanelTitle('CITY OF DETROIT');
           console.log(this.tempData);
-          $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=false&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=pjson", function( data ) {
-            panel.setDisplayType('city');
-            console.log(data);
-            console.log(panel.getTempData());
-            var localData = panel.getTempData();
-            var localHTML = panel.getTempHTML();
-            console.log(localHTML);
-            console.log(localData);
-            localData.totalNumbers += data.count;
-            localData.registrationNumbers += data.count;
-            console.log(localData);
-            localHTML += '<article class="renewal"><span>NEED SURVEY</span> ' + localData.registrationNumbers + '</article>';
-            console.log(localHTML);
-            panel.setTempHTML([localHTML]);
-            panel.setTempData(localData);
-            panel.loadPanel();
+          var parcelArray = [];
+          $.getJSON("http://apis.detroitmi.gov/photo_survey/status/", function( parcels ) {
+            console.log(parcels);
+            for (var key in parcels) {
+              parcelArray.push(key);
+            }
+            $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=false&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=pjson", function( data ) {
+              panel.setDisplayType('city');
+              console.log(data);
+              console.log(panel.getTempData());
+              var localData = panel.getTempData();
+              var localHTML = panel.getTempHTML();
+              console.log(localHTML);
+              console.log(localData);
+              localData.totalNumbers += data.count - parcelArray.length;
+              localData.registrationNumbers += parcelArray.length;
+              console.log(localData);
+              localHTML += '<article class="renewal"><span>NEED SURVEY</span> ' + localData.registrationNumbers + '</article>';
+              console.log(localHTML);
+              panel.setTempHTML([localHTML]);
+              panel.setTempData(localData);
+              panel.loadPanel();
+            });
           });
       }
     }

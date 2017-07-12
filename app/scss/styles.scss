@@ -115,7 +115,7 @@ main {position: relative; width: 100%; height: 100vh; overflow: hidden;}
 .question-container > .answers{padding-top: 1em;}
 #parcel-image > img{width: 100%;}
 .survey-buttons{padding: 1em;}
-.survey-buttons > button{padding: .5em 1em;}
+.survey-buttons > button{padding: .5em 1em; margin-right: 1em;}
 ::-webkit-input-placeholder { /* Chrome */
   color: #000;
 }

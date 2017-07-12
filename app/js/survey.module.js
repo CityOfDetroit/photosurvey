@@ -7,6 +7,7 @@ var surveyModule = (function(){
     },
     currentParcel: null,
     pastSurveys : false,
+    previousSurveyIndex : null,
     surveyIndex : 0,
     surveyParcelsSet: null,
     surveyNextParcel: null,
@@ -734,6 +735,12 @@ var surveyModule = (function(){
        });
      });
     },
+    setPreviousSurveyIndex: function(value){
+      this.previousSurveyIndex = value;
+    },
+    getPreviousSurveyIndex: function(){
+      return this.previousSurveyIndex;
+    },
     getSurveyParcelsSet: function () {
       return this.surveyParcelsSet;
     },
@@ -878,11 +885,6 @@ var surveyModule = (function(){
       survey.setPastSurveys(false);
       survey.loadHTML();
     },
-    loadAnotherSurvey: function(){
-      document.querySelector('#survey-note-card > .street-name > h1').innerHTML = 'LOADING<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>';
-      this.clearAnswersButtons();
-      this.startSurvey();
-    },
     displaySurveyPanels: function(){
       (document.querySelector('#info').className === 'active') ? document.querySelector('#info').className = '' : 0;
       (document.querySelector('#survey').className === 'active') ? 0 : document.querySelector('#survey').className = 'active';
@@ -974,6 +976,7 @@ var surveyModule = (function(){
         if(selectedAnswers[0].getAttribute('data-next-key') === 'null'){
           survey.submitSurvey();
         }else{
+          survey.setPreviousSurveyIndex(survey.getSurveyIndex());
           survey.setSurveyIndex(parseInt(selectedAnswers[0].getAttribute('data-next-key')));
           console.log(survey.getSurveyIndex());
           survey.loadHTML();
@@ -987,6 +990,7 @@ var surveyModule = (function(){
           if(document.querySelector('.answer-text').getAttribute('data-next-key') === 'null'){
             survey.submitSurvey();
           }else{
+            survey.setPreviousSurveyIndex(survey.getSurveyIndex());
             survey.setSurveyIndex(parseInt(document.querySelector('.answer-text').getAttribute('data-next-key')));
             console.log(survey.getSurveyIndex());
             survey.loadHTML();
@@ -1006,7 +1010,19 @@ var surveyModule = (function(){
         document.querySelector('.survey-buttons').innerHTML = '<button onclick="survey.startNewSurvey()">Start New Survey</button>';
       }else{
         document.querySelector('.question-container').innerHTML = survey.loadQuestion();
-        document.querySelector('.survey-buttons').innerHTML = '<button onclick="survey.submitAnswer()">NEXT</button>';
+        document.querySelector('.survey-buttons').innerHTML = '<button id="previous-button" onclick="survey.getPreviousQuestion()">BACK</button><button onclick="survey.submitAnswer()">NEXT</button>';
+      }
+    },
+    getPreviousQuestion: function(){
+      let tempIndex = survey.getPreviousSurveyIndex();
+      if(tempIndex !== null){
+        console.log('getting previous question');
+        survey.setSurveyIndex(tempIndex);
+        document.querySelector('.question-container').innerHTML = survey.loadQuestion();
+        document.getElementById('previous-button').disabled = false;
+      }else{
+        console.log('no previous question');
+        document.getElementById('previous-button').disabled = true;
       }
     },
     submitSurvey: function(){
@@ -1049,7 +1065,7 @@ var surveyModule = (function(){
           dataType:'json',
           success: function(response){
             console.log(response);
-            document.querySelector('.survey-buttons').innerHTML = '<button onclick="survey.loadAnotherSurvey()">START OTHER SURVEY</button>';
+            document.querySelector('.survey-buttons').innerHTML = '<button onclick="survey.startNewSurvey()">START NEW SURVEY</button>';
             document.querySelector('.question-container').innerHTML = '<h5>Your survey has been saved.</h5>'
             for (let i in response.parcel_survey_info){
               if(response.parcel_survey_info[i] === 0){

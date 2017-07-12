@@ -314,7 +314,8 @@ main {
   padding: 1em; }
 
 .survey-buttons > button {
-  padding: .5em 1em; }
+  padding: .5em 1em;
+  margin-right: 1em; }
 
 ::-webkit-input-placeholder {
   /* Chrome */
