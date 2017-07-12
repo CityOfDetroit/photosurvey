@@ -99,7 +99,7 @@ mly.on(Mapillary.Viewer.nodechanged, function(node) {
   survey.getParcelData(lngLat);
 });
 window.addEventListener('resize', function() { mly.resize(); map.resize(); });
-window.onload = function(){
+var loadURLRouting = function loadURLRouting() {
   console.log(getQueryVariable('zoom'));
   console.log(getQueryVariable('lat'));
   console.log(getQueryVariable('lng'));
@@ -205,6 +205,9 @@ window.onload = function(){
     }
   }
 };
+window.onload = function(){
+  loadURLRouting();
+};
 var getQueryVariable = function getQueryVariable(variable){
    var query = window.location.search.substring(1);
    var vars = query.split("&");
@@ -278,15 +281,6 @@ var updateURLParams = function updateURLParams(params){
   }
 };
 var startGeocoderResults = function startGeocoderResults(ev){
-  document.querySelector('.overall-number').innerHTML = '';
-  document.querySelector('.parcel-info').innerHTML = '';
-  document.querySelector('.info-container > .not-rental').innerHTML = '';
-  document.querySelector('.info-container > .rental').innerHTML = '';
-  document.querySelector('.info-container > .total-rentals').innerHTML = '';
-  document.querySelector('.parcel-data.owner').innerHTML = '';
-  document.querySelector('.parcel-data.building').innerHTML = '';
-  document.querySelector('.parcel-info.display-section').innerHTML = '';
-  // console.log(ev.result.geometry);
   map.flyTo({
       center: [ev.result.geometry.coordinates[0], ev.result.geometry.coordinates[1]],
       zoom: 16,
@@ -304,7 +298,7 @@ var startGeocoderResults = function startGeocoderResults(ev){
           return t;
       }
   });
-  updateURLParams([ev.result.geometry.coordinates[0],ev.result.geometry.coordinates[1]]);
+
   var tempInputList = document.querySelectorAll('.mapboxgl-ctrl-geocoder.mapboxgl-ctrl > input');
   var tempAddr = '';
   for (var i = 0; i < tempInputList.length; i++) {
@@ -327,23 +321,11 @@ var startGeocoderResults = function startGeocoderResults(ev){
   //================ get parcel data ==========================
   $.getJSON('https://gis.detroitmi.gov/arcgis/rest/services/DoIT/CompositeGeocoder/GeocodeServer/findAddressCandidates?Street=&City=&ZIP=&SingleLine='+ newTempAddr +'&category=&outFields=User_fld&maxLocations=&outSR=&searchExtent=&location=&distance=&magicKey=&f=pjson' , function( data ) {
     //console.log(data.candidates[0].attributes.User_fld);
+    updateURLParams([17,ev.result.geometry.coordinates[0], ev.result.geometry.coordinates[1], data.candidates[0].attributes.User_fld,'','']);
+    mapPanel.setParcelNumber(data.candidates[0].attributes.User_fld);
+    mapPanel.setTempFeatureData({'properties':{'parcelno':data.candidates[0].attributes.User_fld}});
+    mapPanel.createPanel('parcel');
     map.setFilter("parcel-fill-hover", ["==", "parcelno", data.candidates[0].attributes.User_fld]);
-    $.getJSON("https://services2.arcgis.com/qvkbeam7Wirps6zC/ArcGIS/rest/services/Rental_Inspections/FeatureServer/0/query?where="+ encodeURI('ParcelNo=\''+data.candidates[0].attributes.User_fld+'\'')+"&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&resultType=none&distance=0.0&units=esriSRUnit_Meter&returnGeodetic=false&outFields=ACTION_DESCRIPTION%2C+ParcelNo%2C+CSM_RECD_DATE&returnGeometry=true&multipatchOption=xyFootprint&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&returnExtentOnly=false&returnDistinctValues=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&resultOffset=&resultRecordCount=&returnZ=false&returnM=false&quantizationParameters=&sqlFormat=none&f=pjson&token=", function( Rental_Inspections ) {
-      console.log(Rental_Inspections);
-      var tempParcelDataHTML = '';
-      $.getJSON("https://apis.detroitmi.gov/assessments/parcel/"+data.candidates[0].attributes.User_fld.replace(/\./g,'_')+"/", function( parcel ) {
-        //console.log(parcel);
-        document.querySelector('.info-container > .street-name').innerHTML = parcel.propstreetcombined;
-        // parcelData['owner-display'] += '<article class="info-items"><span>OWNER</span> ' + parcel.ownername1 + '</article>';
-        // parcelData['building-display'] += '<article class="info-items"><span>BUILDING TYPE</span> ' + parcel.resb_style + '</article>';
-        // parcelData['building-display'] += '<article class="info-items"><span>PARCEL NUMBER</span> ' + parcel.pnum + '</article>';
-        // parcelData['building-display'] += '<article class="info-items"><span>YEAR BUILT</span> ' + parcel.resb_yearbuilt + '</article>';
-        // document.querySelector('.parcel-info').innerHTML = tempParcelDataHTML;
-        document.querySelector('.parcel-data.owner').innerHTML = '<div class="data-view-btn" data-view="owner" onclick="switchParcelDataViews(this)">OWNER INFORMATION <span>&#10095;</span></div>';
-        document.querySelector('.parcel-data.building').innerHTML = '<div class="data-view-btn" data-view="building" onclick="switchParcelDataViews(this)">PROPERTY INFORMATION <span>&#10095;</span></div>';
-        parcelData['parcel-data'] = parcel;
-      });
-    });
     var allGeocoders = document.querySelectorAll('.mapboxgl-ctrl-geocoder input[type="text"]');
     for (var t = 0; t < allGeocoders.length; t++) {
       allGeocoders[t].value = "";
@@ -450,6 +432,40 @@ document.querySelectorAll('.layer-controller-toggle').forEach(function(item){
     addToggleLayer();
   });
 });
+var contains = function(needle) {
+  // Per spec, the way to identify NaN is that it is not equal to itself
+  var findNaN = needle !== needle;
+  var indexOf;
+  if(!findNaN && typeof Array.prototype.indexOf === 'function') {
+      indexOf = Array.prototype.indexOf;
+  } else {
+      indexOf = function(needle) {
+        var i = -1, index = -1;
+        for(i = 0; i < this.length; i++) {
+            var item = this[i];
+
+            if((findNaN && item !== item) || item === needle) {
+                index = i;
+                break;
+            }
+        }
+        return index;
+      };
+  }
+  return indexOf.call(this, needle) > -1;
+};
+var getSurveyedList = function getSurveyedList(list, cleaner){
+  console.log(list);
+  console.log(cleaner);
+  let lists = {
+    'surveyed': [],
+    'needSurvey': []
+  };
+  list.forEach(function(item){
+    (!contains.call(cleaner,item))? lists.needSurvey.push(item):lists.surveyed.push(item);
+  });
+  return lists;
+};
 var addToggleLayer = function addToggleLayer(){
   var corridorName = '';
   switch (currentToggleID) {
@@ -489,40 +505,6 @@ var addToggleLayer = function addToggleLayer(){
     default:
 
   }
-  var contains = function(needle) {
-    // Per spec, the way to identify NaN is that it is not equal to itself
-    var findNaN = needle !== needle;
-    var indexOf;
-    if(!findNaN && typeof Array.prototype.indexOf === 'function') {
-        indexOf = Array.prototype.indexOf;
-    } else {
-        indexOf = function(needle) {
-          var i = -1, index = -1;
-          for(i = 0; i < this.length; i++) {
-              var item = this[i];
-
-              if((findNaN && item !== item) || item === needle) {
-                  index = i;
-                  break;
-              }
-          }
-          return index;
-        };
-    }
-    return indexOf.call(this, needle) > -1;
-  };
-  var getSurveyedList = function getSurveyedList(list, cleaner){
-    console.log(list);
-    console.log(cleaner);
-    let lists = {
-      'surveyed': [],
-      'needSurvey': []
-    };
-    list.forEach(function(item){
-      (!contains.call(cleaner,item))? lists.needSurvey.push(item):lists.surveyed.push(item);
-    });
-    return lists;
-  };
   var parcelArray = [];
   $.getJSON("http://apis.detroitmi.gov/photo_survey/status/", function( parcels ) {
     console.log(parcels);

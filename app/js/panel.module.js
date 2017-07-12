@@ -330,8 +330,8 @@ var panelModule = (function(survey){
               var localHTML = panel.getTempHTML();
               console.log(localHTML);
               console.log(localData);
-              localData.totalNumbers += data.count - parcelArray.length;
-              localData.registrationNumbers += parcelArray.length;
+              localData.totalNumbers += data.count;
+              localData.registrationNumbers += data.count - parcelArray.length;
               console.log(localData);
               localHTML += '<article class="renewal"><span>NEED SURVEY</span> ' + localData.registrationNumbers + '</article>';
               console.log(localHTML);
