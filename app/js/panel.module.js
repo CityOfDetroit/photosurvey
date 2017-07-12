@@ -317,7 +317,7 @@ var panelModule = (function(survey){
           this.setPanelTitle('CITY OF DETROIT');
           console.log(this.tempData);
           var parcelArray = [];
-          $.getJSON("http://apis.detroitmi.gov/photo_survey/status/", function( parcels ) {
+          $.getJSON("https://apis.detroitmi.gov/photo_survey/status/", function( parcels ) {
             console.log(parcels);
             for (var key in parcels) {
               parcelArray.push(key);
