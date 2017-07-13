@@ -622,6 +622,76 @@ var surveyModule = (function(){
         }
       ]
     ],
+    setPreviousSurveyIndex: function(value){
+      this.previousSurveyIndex = value;
+    },
+    getPreviousSurveyIndex: function(){
+      return this.previousSurveyIndex;
+    },
+    getSurveyParcelsSet: function () {
+      return this.surveyParcelsSet;
+    },
+    saveSurveyParcelSet: function (value) {
+      this.surveyParcelsSet = value;
+    },
+    setCurrentParcel: function(value){
+      this.currentParcel = value;
+    },
+    getCurrentParcel: function(){
+      return this.currentParcel;
+    },
+    setSurveyNextParcel: function(value){
+      this.surveyNextParcel = value;
+    },
+    getSurveyNextParcel: function(){
+      return this.surveyNextParcel;
+    },
+    setSurveyPossibleeAddress: function(value){
+      this.surveyPossibleAddress = value;
+    },
+    getSurveyPossibleeAddress: function(){
+      return this.surveyPossibleAddress;
+    },
+    setSurveyCurrentAddress: function(value){
+      this.surveyCurrentAddress = value;
+    },
+    getSurveyCurrentAddress: function(){
+      return this.surveyCurrentAddress;
+    },
+    setCurrentLatLng: function(value){
+      this.currentLatLng.lat = value.lat;
+      this.currentLatLng.lng = value.lng;
+    },
+    getCurrentLatLng: function(){
+      return this.currentLatLng;
+    },
+    setPastSurveys: function(value){
+      this.pastSurveys = value;
+    },
+    getPastSurveys: function(){
+      return this.pastSurveys;
+    },
+    setSurveyIndex: function(value) {
+      this.surveyIndex = value;
+    },
+    getSurveyIndex: function(){
+      return this.surveyIndex;
+    },
+    getAnswerSet: function(index){
+      return this.answerList[index];
+    },
+    getQuestion: function(index){
+      return this.questionsList[index];
+    },
+    getPostData: function(){
+      return this.surveyPostData;
+    },
+    clearSurvey: function(){
+      this.surveyIndex = 0;
+      this.surveyPostData.answers.forEach(function(item){
+        item.answer = null;
+      });
+    },
     setSurveyParcelsSet: function(){
       var corridorName = '';
       switch (currentToggleID) {
@@ -734,76 +804,6 @@ var surveyModule = (function(){
                function(error) { console.error(error); });
        });
      });
-    },
-    setPreviousSurveyIndex: function(value){
-      this.previousSurveyIndex = value;
-    },
-    getPreviousSurveyIndex: function(){
-      return this.previousSurveyIndex;
-    },
-    getSurveyParcelsSet: function () {
-      return this.surveyParcelsSet;
-    },
-    saveSurveyParcelSet: function (value) {
-      this.surveyParcelsSet = value;
-    },
-    setCurrentParcel: function(value){
-      this.currentParcel = value;
-    },
-    getCurrentParcel: function(){
-      return this.currentParcel;
-    },
-    setSurveyNextParcel: function(value){
-      this.surveyNextParcel = value;
-    },
-    getSurveyNextParcel: function(){
-      return this.surveyNextParcel;
-    },
-    setSurveyPossibleeAddress: function(value){
-      this.surveyPossibleAddress = value;
-    },
-    getSurveyPossibleeAddress: function(){
-      return this.surveyPossibleAddress;
-    },
-    setSurveyCurrentAddress: function(value){
-      this.surveyCurrentAddress = value;
-    },
-    getSurveyCurrentAddress: function(){
-      return this.surveyCurrentAddress;
-    },
-    setCurrentLatLng: function(value){
-      this.currentLatLng.lat = value.lat;
-      this.currentLatLng.lng = value.lng;
-    },
-    getCurrentLatLng: function(){
-      return this.currentLatLng;
-    },
-    setPastSurveys: function(value){
-      this.pastSurveys = value;
-    },
-    getPastSurveys: function(){
-      return this.pastSurveys;
-    },
-    setSurveyIndex: function(value) {
-      this.surveyIndex = value;
-    },
-    getSurveyIndex: function(){
-      return this.surveyIndex;
-    },
-    getAnswerSet: function(index){
-      return this.answerList[index];
-    },
-    getQuestion: function(index){
-      return this.questionsList[index];
-    },
-    getPostData: function(){
-      return this.surveyPostData;
-    },
-    clearSurvey: function(){
-      this.surveyIndex = 0;
-      this.surveyPostData.answers.forEach(function(item){
-        item.answer = null;
-      });
     },
     setPostData: function(index, value){
       console.log(value);
@@ -972,7 +972,15 @@ var surveyModule = (function(){
         console.log(survey.getSurveyIndex());
         console.log(selectedAnswers);
         console.log(typeof(selectedAnswers[0].getAttribute('data-next-key')));
-        survey.setPostData(survey.getSurveyIndex(), selectedAnswers[0].value);
+        if(itemsChecked > 1){
+          let selectedAnswersStr = '';
+          selectedAnswers.forEach(function(item) {
+            selectedAnswersStr += item.value + ',';
+          });
+          survey.setPostData(survey.getSurveyIndex(), selectedAnswersStr);
+        }else{
+          survey.setPostData(survey.getSurveyIndex(), selectedAnswers[0].value);
+        }
         if(selectedAnswers[0].getAttribute('data-next-key') === 'null'){
           survey.submitSurvey();
         }else{

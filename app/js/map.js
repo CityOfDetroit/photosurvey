@@ -518,6 +518,14 @@ var addToggleLayer = function addToggleLayer(){
       console.log(simplifiedCorridor);
       var arcCorridorPolygon = Terraformer.ArcGIS.convert(simplifiedCorridor.geometry);
       console.log(arcCorridorPolygon);
+      $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcCorridorPolygon))+"&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=geojson", function( data ) {
+        //  =========== parcel quering test ============
+        var testParcel = turf.simplify(data.features[0], 0.003, false);
+        console.log(simplifiedCorridor);
+        var testParcelArc = Terraformer.ArcGIS.convert(testParcel.geometry);
+        console.log(JSON.stringify(testParcelArc));
+        //  ============================================
+      });
        $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry="+ encodeURI(JSON.stringify(arcCorridorPolygon))+"&geometryType=esriGeometryPolygon&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=4326&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=json", function( data ) {
          console.log(data);
          var needSurveyFilter = ["in",'parcelno'];
