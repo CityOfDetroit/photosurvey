@@ -194,8 +194,20 @@ var loadURLRouting = function loadURLRouting() {
     }
   }
 };
+var liveUpdate = function liveUpdate(){
+  window.setInterval(function(){
+    if(!getQueryVariable('neighborhood') && !getQueryVariable('district') && !getQueryVariable('parcel')){
+      mapPanel.updatePanelData('city');
+    }else{
+      console.log('subsection active');
+    }
+    console.log('updating corridors status');
+    addToggleLayer();
+  }, 300000);
+};
 window.onload = function(){
   loadURLRouting();
+  liveUpdate();
 };
 var getQueryVariable = function getQueryVariable(variable){
    var query = window.location.search.substring(1);
@@ -460,6 +472,12 @@ var getSurveyedList = function getSurveyedList(list, cleaner){
   return lists;
 };
 var addToggleLayer = function addToggleLayer(){
+  try {
+    (map.getLayer("already-survey") !== undefined) ? map.removeLayer("already-survey"):0;
+    (map.getLayer("need-survey") !== undefined) ? map.removeLayer("need-survey"):0;
+  }catch(err) {
+    console.log("Error: " + err);
+  }
   var corridorName = '';
   switch (currentToggleID) {
     case "c-w-vernor":
@@ -773,3 +791,38 @@ for (var i = 0; i < toggleBaseMapBtns.length; i++) {
     toggleBaseMap(e);
   });
 }
+var parcelsSlider = function parcelsSlider(action) {
+  console.log(action.className);
+  var imagesList = document.querySelectorAll('.slides > li');
+  var currentActiveImg = null;
+  imagesList.forEach(function(image,index){
+    if(image.className === "flex-active-slide"){
+      currentActiveImg = index;
+      return 0;
+    }
+  });
+  console.log(imagesList);
+  console.log(currentActiveImg);
+  imagesList[currentActiveImg].className = '';
+  if(action.className === "flex-next"){
+    switch (true) {
+      case currentActiveImg === (imagesList.length - 1):
+        document.querySelector('.slides').style.left = '0';
+        imagesList[0].className = "flex-active-slide";
+        break;
+      default:
+        document.querySelector('.slides').style.left = '-' + ((currentActiveImg+1) * 20) + 'em';
+        imagesList[currentActiveImg+1].className = "flex-active-slide";
+    }
+  }else{
+    switch (true) {
+      case currentActiveImg === 0:
+        document.querySelector('.slides').style.left = '-' + ((imagesList.length - 1) * 20) + 'em';
+        imagesList[imagesList.length - 1].className = "flex-active-slide";
+        break;
+      default:
+        document.querySelector('.slides').style.left = '-' + ((currentActiveImg-1) * 20) + 'em';
+        imagesList[currentActiveImg-1].className = "flex-active-slide";
+    }
+  }
+};

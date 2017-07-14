@@ -24,7 +24,7 @@ var mapSectionClickModule = (function(){
         if(getQueryVariable('survey')){
           console.log('survey going no click enable');
         }else{
-          mapPanel.featureData = councilFeatures[0];
+          mapPanel.setTempFeatureData(councilFeatures[0]);
           updateURLParams([13,e.lngLat.lng, e.lngLat.lat, '',councilFeatures[0].properties.name]);
           mapPanel.createPanel('district');
         }
@@ -33,7 +33,7 @@ var mapSectionClickModule = (function(){
         if(getQueryVariable('survey')){
           console.log('survey going no click enable');
         }else{
-          mapPanel.featureData = neighborhoodsFeatures[0];
+          mapPanel.setTempFeatureData(neighborhoodsFeatures[0]);
           updateURLParams([16,e.lngLat.lng, e.lngLat.lat, '','',neighborhoodsFeatures[0].properties.name]);
           mapPanel.createPanel('neighborhood');
         }
@@ -42,7 +42,7 @@ var mapSectionClickModule = (function(){
         if(getQueryVariable('survey')){
           console.log('survey going no click enable');
         }else{
-          mapPanel.featureData = parcelFeatures[0];
+          mapPanel.setTempFeatureData(parcelFeatures[0]);
           updateURLParams([17,e.lngLat.lng, e.lngLat.lat, parcelFeatures[0].properties.parcelno,'','']);
           mapPanel.createPanel('parcel');
         }

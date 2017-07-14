@@ -23,7 +23,7 @@ var panelModule = (function(survey){
       $.getJSON("https://apis.detroitmi.gov/photo_survey/"+tempParcel+"/", function( data ) {
         console.log(data);
         if(data.images.length > 0){
-          document.getElementById('parcel-image').innerHTML ='<h5 style="text-align:center">LOADING IMAGE<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></h5>';
+          document.getElementById('parcel-image').innerHTML ='<h5 style="text-align:center">LOADING IMAGE(S)<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span></h5>';
           panel.updateImageList(data.images);
           panel.loadImage(data.images);
         }else{
@@ -32,7 +32,14 @@ var panelModule = (function(survey){
       });
     },
     loadImage: function(data){
-      document.getElementById('parcel-image').innerHTML ='<img src="' + data[0] + '" alt="parcel image"></img>';
+      console.log(data);
+      var imageHTML = '<div class="flexslider left"><div class="flex-viewport"><ul class="slides">';
+      data.forEach(function(url,index){
+        (index === 0)? imageHTML += '<li class="flex-active-slide">' : imageHTML += '<li>';
+        imageHTML += '<img src="'+url+'"><div class="meta"><div class="category"><span>NEEDS RE-SURVEY</span></div></div></li>'
+      });
+      imageHTML += '</ul><ul class="flex-direction-nav"><li><a class="flex-prev" href="#" onclick="parcelsSlider(this)">Previous</a></li><li><a class="flex-next" href="#" onclick="parcelsSlider(this)">Next</a></li></ul></div></div>'
+      document.getElementById('parcel-image').innerHTML = imageHTML;
     },
     setParcelNumber : function(parcel) {
       console.log(parcel);
@@ -42,15 +49,15 @@ var panelModule = (function(survey){
       return panel.parcelNumer;
     },
     createPanel     : function(type){
-      this.setDisplayType(type);
-      this.clearPanel();
-      this.createPanelData();
+      panel.setDisplayType(type);
+      panel.clearPanel();
+      panel.createPanelData();
     },
     setDisplayType  : function(type){
-      this.displayType = type;
+      panel.displayType = type;
     },
     getDisplayType : function(){
-      return this.displayType;
+      return panel.displayType;
     },
     setTempData : function(obj){
       panel.tempData.registrationNumbers = obj.registrationNumbers;
@@ -104,13 +111,36 @@ var panelModule = (function(survey){
           }
       });
     },
+    updatePanelData: function(panelType){
+      switch (true) {
+        case panelType === 'neighborhood':
+          document.querySelector('.overall-number').innerHTML = this.tempHTML;
+          document.querySelector('.info-container > .total-rentals > p').innerHTML = this.tempData.totalNumbers;
+          break;
+        case panelType === 'district':
+          document.querySelector('.overall-number').innerHTML = this.tempHTML;
+          document.querySelector('.info-container > .total-rentals > p').innerHTML = this.tempData.totalNumbers;
+          break;
+        default:
+          console.log('live updating citywide panel data');
+          var parcelSurveyed = null;
+          $.getJSON("https://apis.detroitmi.gov/photo_survey/status/summary/", function( parcels ) {
+            console.log(parcels.num_parcels_surveyed);
+            parcelSurveyed = parcels.num_parcels_surveyed;
+            $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=false&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=pjson", function( data ) {
+              document.querySelector('.overall-number').innerHTML = '<article class="renewal"><span>NEED SURVEY</span> ' + (data.count - parcelSurveyed) + '</article>';
+              document.querySelector('.info-container > .total-rentals > p').innerHTML = data.count;
+            });
+          });
+      }
+    },
     loadPanel : function(){
-      console.log(this.getDisplayType());
+      console.log(panel.getDisplayType());
       console.log(this.displayType);
       switch (true) {
-        case this.displayType === 'parcel':
+        case panel.getDisplayType() === 'parcel':
           console.log('loading parcel data');
-          var localParcelData = this.getParcelData();
+          var localParcelData = panel.getParcelData();
           console.log(localParcelData);
           console.log(typeof(localParcelData));
           console.log(this.getTempHTML());
@@ -123,14 +153,14 @@ var panelModule = (function(survey){
           map.setFilter("parcel-fill-hover", ["==", "parcelno", currentURLParams.parcel]);
           panel.getSurveyImageIDs();
           break;
-        case this.displayType === 'neighborhood':
+        case panel.getDisplayType() === 'neighborhood':
           document.querySelector('.info-container > .street-name').innerHTML = this.title;
           document.querySelector('.info-container > .rental').innerHTML = '';
           document.querySelector('.info-container > .total-rentals').innerHTML = "<h4>TOTAL PROPERTIES</h4><p>0</p>";
           document.querySelector('.overall-number').innerHTML = this.tempHTML;
           document.querySelector('.info-container > .total-rentals > p').innerHTML = this.tempData.totalNumbers;
           break;
-        case this.displayType === 'district':
+        case panel.getDisplayType() === 'district':
           document.querySelector('.info-container > .street-name').innerHTML = this.title;
           document.querySelector('.info-container > .rental').innerHTML = '';
           document.querySelector('.info-container > .total-rentals').innerHTML = "<h4>TOTAL PROPERTIES</h4><p>0</p>";
@@ -244,10 +274,9 @@ var panelModule = (function(survey){
           panel.setTempHTML('clear');
           var tempParcelDataHTML = new Array(5);
           console.log('loading parcel data');
-          console.log(this.displayType);
-          console.log(this.featureData.properties.parcelno);
-          panel.setParcelNumber(this.featureData.properties.parcelno);
-          $.getJSON("https://apis.detroitmi.gov/assessments/parcel/"+this.featureData.properties.parcelno.replace(/\./g,'_')+"/", function( parcel ) {
+          console.log(panel.getTempFeatureData().properties.parcelno);
+          panel.setParcelNumber(panel.getTempFeatureData().properties.parcelno);
+          $.getJSON("https://apis.detroitmi.gov/assessments/parcel/"+panel.getTempFeatureData().properties.parcelno.replace(/\./g,'_')+"/", function( parcel ) {
             panel.setDisplayType('parcel');
             console.log(parcel);
             console.log(panel.getDisplayType());
@@ -259,10 +288,10 @@ var panelModule = (function(survey){
           });
           this.flyToPosition(currentURLParams);
           break;
-        case this.displayType === 'neighborhood':
+        case panel.getDisplayType() === 'neighborhood':
           this.setTempHTML('clear');
           console.log('creating neighborhood panel');
-          var simplifiedNeighborhood = turf.simplify(this.featureData, 0.003, false);
+          var simplifiedNeighborhood = turf.simplify(panel.getTempFeatureData(), 0.003, false);
           console.log(simplifiedNeighborhood);
           this.setPanelTitle(simplifiedNeighborhood.properties.name);
           var arcNeighborhoodPolygon = Terraformer.ArcGIS.convert(simplifiedNeighborhood.geometry);
@@ -286,10 +315,10 @@ var panelModule = (function(survey){
           });
           this.flyToPosition(currentURLParams);
           break;
-        case this.displayType === 'district':
+        case panel.getDisplayType() === 'district':
           this.setTempHTML('clear');
           console.log('creating district panel');
-          var simplifiedDistrict = turf.simplify(this.featureData, 0.003, false);
+          var simplifiedDistrict = turf.simplify(panel.getTempFeatureData(), 0.003, false);
           console.log(simplifiedDistrict);
           this.setPanelTitle(simplifiedDistrict.properties.name);
           var arcDistrictPolygon = Terraformer.ArcGIS.convert(simplifiedDistrict.geometry);
@@ -316,12 +345,10 @@ var panelModule = (function(survey){
           this.setTempHTML('clear');
           this.setPanelTitle('CITY OF DETROIT');
           console.log(this.tempData);
-          var parcelArray = [];
-          $.getJSON("https://apis.detroitmi.gov/photo_survey/status/", function( parcels ) {
-            console.log(parcels);
-            for (var key in parcels) {
-              parcelArray.push(key);
-            }
+          var parcelSurveyed = null;
+          $.getJSON("https://apis.detroitmi.gov/photo_survey/status/summary/", function( parcels ) {
+            console.log(parcels.num_parcels_surveyed);
+            parcelSurveyed = parcels.num_parcels_surveyed;
             $.getJSON("https://gis.detroitmi.gov/arcgis/rest/services/DoIT/Commercial/MapServer/0/query?where=1%3D1&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=&returnGeometry=false&returnTrueCurves=false&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=true&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&resultOffset=&resultRecordCount=&f=pjson", function( data ) {
               panel.setDisplayType('city');
               console.log(data);
@@ -331,7 +358,7 @@ var panelModule = (function(survey){
               console.log(localHTML);
               console.log(localData);
               localData.totalNumbers += data.count;
-              localData.registrationNumbers += data.count - parcelArray.length;
+              localData.registrationNumbers += data.count - parcelSurveyed;
               console.log(localData);
               localHTML += '<article class="renewal"><span>NEED SURVEY</span> ' + localData.registrationNumbers + '</article>';
               console.log(localHTML);
