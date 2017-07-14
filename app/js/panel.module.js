@@ -236,10 +236,10 @@ var panelModule = (function(survey){
       }
     },
     createPanelData : function(){
-      console.log(this.displayType);
-      console.log(this.getDisplayType());
+      console.log(panel.displayType);
+      console.log(panel.getDisplayType());
       switch (true) {
-        case this.displayType === 'parcel':
+        case panel.getDisplayType() === 'parcel':
           panel.setParcelData(null);
           panel.setTempHTML('clear');
           var tempParcelDataHTML = new Array(5);

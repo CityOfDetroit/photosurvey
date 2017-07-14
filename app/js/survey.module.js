@@ -798,6 +798,7 @@ var surveyModule = (function(){
          let llb = new mapboxgl.LngLatBounds(randomItem.geometry.rings[0]);
          let center = llb.getCenter();
          console.log(center);
+
          mly.moveCloseTo(center.lat, center.lng)
            .then(
                function(node) { console.log(node.key); },

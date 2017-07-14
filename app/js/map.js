@@ -51,17 +51,6 @@ var mly = new Mapillary.Viewer(
 var marker;
 var currentToggleID = 'c-w-vernor';
 // ================== functions =====================
-map.on("style.load", function() {
-  map.addSource("markers", markerSource);
-  map.addLayer({
-    id: "markers",
-    type: "symbol",
-    source: "markers",
-    layout: {
-      "icon-image": "car-15"
-    }
-  });
-});
 mly.on(Mapillary.Viewer.nodechanged, function(node) {
   updateURLParams(['','','','','','',node.key]);
   document.querySelector('#survey-note-card > .street-name > h1').innerHTML = 'LOADING<span class="dot-1">.</span><span class="dot-2">.</span><span class="dot-3">.</span>';
@@ -283,7 +272,7 @@ var updateURLParams = function updateURLParams(params){
 var startGeocoderResults = function startGeocoderResults(ev){
   map.flyTo({
       center: [ev.result.geometry.coordinates[0], ev.result.geometry.coordinates[1]],
-      zoom: 16,
+      zoom: 17,
       bearing: 0,
 
       // These options control the flight curve, making it move
@@ -368,7 +357,7 @@ var closeInfo = function closeInfo() {
   });
   updateURLParams(['',-83.15,42.36,'','','']);
 };
-var closeSurvey = function closeSurvey() {
+var closeSurvey = function closeSurvey(){
   console.log('closing survery');
   if(document.querySelector('#info').className !== 'active'){
     document.querySelector('#info').className = 'active';
@@ -384,27 +373,31 @@ var closeSurvey = function closeSurvey() {
   setTimeout(function() {
     mly.resize();
     map.resize();
+    map.flyTo({
+        center: [getQueryVariable('lng'), getQueryVariable('lat')], // starting position
+        zoom: getQueryVariable('zoom'),
+        bearing: 0,
+
+        // These options control the flight curve, making it move
+        // slowly and zoom out almost completely before starting
+        // to pan.
+        speed: 2, // make the flying slow
+        curve: 1, // change the speed at which it zooms out
+
+        // This can be any easing function: it takes a number between
+        // 0 and 1 and returns another number between 0 and 1.
+        easing: function (t) {
+            return t;
+        }
+    });
   }, 500);
   //console.log('going back to city view');
-  map.flyTo({
-      center: [-83.15, 42.36], // starting position
-      zoom: 11.5,
-      bearing: 0,
-
-      // These options control the flight curve, making it move
-      // slowly and zoom out almost completely before starting
-      // to pan.
-      speed: 2, // make the flying slow
-      curve: 1, // change the speed at which it zooms out
-
-      // This can be any easing function: it takes a number between
-      // 0 and 1 and returns another number between 0 and 1.
-      easing: function (t) {
-          return t;
-      }
-  });
+  updateURLParams([getQueryVariable('zoom'),getQueryVariable('lng'),getQueryVariable('lat'),getQueryVariable('parcel'),'','']);
   updateURLParams(['','','','','','','']);
-  updateURLParams(['',-83.15,42.36,'','','']);
+  mapPanel.setParcelNumber(getQueryVariable('parcel'));
+  mapPanel.setTempFeatureData({'properties':{'parcelno':getQueryVariable('parcel')}});
+  mapPanel.createPanel('parcel');
+  map.setFilter("parcel-fill-hover", ["==", "parcelno", getQueryVariable('parcel')]);
   survey.clearSurvey();
 };
 var verifySurveyClose = function verifySurveyClose(action){
@@ -704,6 +697,15 @@ var addDataLayers = function addDataLayers(){
    addToggleLayer();
 };
 map.on('style.load', function(){
+  map.addSource("markers", markerSource);
+  map.addLayer({
+    id: "markers",
+    type: "symbol",
+    source: "markers",
+    layout: {
+      "icon-image": "car-15"
+    }
+  });
   addDataLayers();
   map.resize();
 });
